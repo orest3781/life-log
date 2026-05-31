@@ -12,6 +12,7 @@ import { LogSheet } from './LogSheet'
 import { EntryDetail } from './EntryDetail'
 import { SettingsSheet } from './SettingsSheet'
 import { CategoryManager } from './CategoryManager'
+import { InstallBanner } from './InstallBanner'
 import { GearIcon, PlusIcon, SearchIcon } from './icons'
 import type { Category, Entry } from '../types'
 
@@ -78,6 +79,8 @@ export function LedgerScreen() {
           <GearIcon width={22} height={22} />
         </button>
       </header>
+
+      <InstallBanner />
 
       <SearchBar
         searchOpen={searchOpen}

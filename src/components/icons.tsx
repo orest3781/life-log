@@ -101,3 +101,21 @@ export const GripIcon = (p: IconProps) => (
     <circle cx="15" cy="18" r="1" />
   </svg>
 )
+
+export const DownloadIcon = (p: IconProps) => (
+  <svg {...base(p)}>
+    <path d="M12 3v12" />
+    <path d="m7 11 5 5 5-5" />
+    <path d="M5 21h14" />
+  </svg>
+)
+
+// iOS-style share glyph (box with an upward arrow), used in the Add-to-Home
+// Screen hint for Safari.
+export const ShareIcon = (p: IconProps) => (
+  <svg {...base(p)}>
+    <path d="M12 15V3" />
+    <path d="m8 7 4-4 4 4" />
+    <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7" />
+  </svg>
+)
