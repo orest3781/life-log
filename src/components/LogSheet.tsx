@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { addMonths, addWeeks, addYears } from 'date-fns'
+import { addDays, addMonths, addWeeks, addYears } from 'date-fns'
 import { Sheet } from './Sheet'
 import { ImageIcon, TrashIcon } from './icons'
 import { usePhotos } from '../hooks/usePhotos'
@@ -27,11 +27,16 @@ interface NewPhoto {
 }
 
 const REMINDER_PRESETS: Array<{ label: string; add: (d: number) => Date }> = [
+  { label: 'Tomorrow', add: (d) => addDays(d, 1) },
+  { label: '3 days', add: (d) => addDays(d, 3) },
   { label: '1 week', add: (d) => addWeeks(d, 1) },
+  { label: '2 weeks', add: (d) => addWeeks(d, 2) },
   { label: '1 month', add: (d) => addMonths(d, 1) },
   { label: '3 months', add: (d) => addMonths(d, 3) },
   { label: '6 months', add: (d) => addMonths(d, 6) },
+  { label: '9 months', add: (d) => addMonths(d, 9) },
   { label: '1 year', add: (d) => addYears(d, 1) },
+  { label: '2 years', add: (d) => addYears(d, 2) },
 ]
 
 // Create or edit an entry. Optimized so the common path is: type a title,
@@ -265,6 +270,13 @@ export function LogSheet({ mode, entry, categories, onClose }: LogSheetProps) {
                   {preset.label}
                 </button>
               ))}
+              <button
+                type="button"
+                onClick={() => setRemindAt(addWeeks(Date.now(), 1).getTime())}
+                className="rounded-full bg-accent-soft px-3 py-1.5 text-sm font-medium text-accent"
+              >
+                Pick date…
+              </button>
             </div>
           ) : (
             <div className="flex items-center gap-2">
