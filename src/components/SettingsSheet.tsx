@@ -97,9 +97,9 @@ export function SettingsSheet({ onClose, onOpenCategories }: SettingsSheetProps)
 
         <Section title="About">
           <p className="text-sm leading-relaxed text-muted">
-            Cairn is a five-second logbook for your life. Mark what happened,
-            tap a category, done — and every entry quietly tells you how long
-            ago it was. No accounts, no nagging.
+            Waystone is a five-second logbook for your life. Mark what
+            happened, tap a category, done — and every entry quietly tells you
+            how long ago it was. No accounts, no nagging.
           </p>
         </Section>
       </div>
@@ -156,8 +156,8 @@ function DriveSection() {
       <>
         <p className="mb-3 text-sm leading-relaxed text-muted">
           Connect Google Drive to automatically back up to a private folder you
-          own. Cairn can only see the files it creates — nothing else in your
-          Drive.
+          own. Waystone can only see the files it creates — nothing else in
+          your Drive.
         </p>
         <button
           type="button"

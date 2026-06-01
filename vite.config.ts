@@ -13,8 +13,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'icon.svg'],
       manifest: {
-        name: 'Cairn',
-        short_name: 'Cairn',
+        name: 'Waystone',
+        short_name: 'Waystone',
         description: 'A five-second logbook for your life. Mark the moment. Find it later.',
         theme_color: '#3f7d6e',
         background_color: '#e8e1d3',

@@ -13,7 +13,7 @@ import { EntryDetail } from './EntryDetail'
 import { SettingsSheet } from './SettingsSheet'
 import { CategoryManager } from './CategoryManager'
 import { InstallBanner } from './InstallBanner'
-import { CairnMark } from './CairnMark'
+import { WaystoneMark } from './WaystoneMark'
 import { GearIcon, PlusIcon, SearchIcon } from './icons'
 import type { Category, Entry } from '../types'
 
@@ -55,8 +55,8 @@ export function LedgerScreen() {
       {/* Header */}
       <header className="sticky top-0 z-20 flex items-center gap-2 border-b-2 border-ink bg-paper px-5 py-3">
         <h1 className="flex flex-1 items-center gap-2 font-display text-2xl font-bold tracking-tight text-ink">
-          <CairnMark size={26} />
-          Cairn
+          <WaystoneMark size={26} />
+          Waystone
         </h1>
         <button
           type="button"
@@ -190,7 +190,7 @@ function EmptyState({ filtering }: { filtering: boolean }) {
   return (
     <div className="px-8 py-24 text-center">
       <div className="font-display text-xl font-bold text-ink">
-        Your cairn is empty
+        Nothing marked yet
       </div>
       <p className="mx-auto mt-2 max-w-xs text-[15px] leading-relaxed text-muted">
         Tap the <span className="font-semibold text-accent">+</span> button to

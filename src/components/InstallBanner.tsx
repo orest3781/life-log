@@ -35,7 +35,7 @@ export function InstallBanner() {
 
         <div className="min-w-0 flex-1">
           <div className="text-[15px] font-semibold text-ink">
-            Add Cairn to your home screen
+            Add Waystone to your home screen
           </div>
 
           {canInstall ? (

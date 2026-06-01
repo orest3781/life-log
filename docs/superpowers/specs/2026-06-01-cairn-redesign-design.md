@@ -1,5 +1,7 @@
 # Cairn — Redesign & Rebrand Spec
 
+> **Update:** the name was changed to **Waystone** shortly after this spec (a marker stone = same "mark the moment, find it later" idea). Everywhere this doc says "Cairn", read "Waystone"; the mark became a single upright marker stone instead of a stack. The design system (Bone & Teal, neo-brutalist, Space Grotesk) is unchanged.
+
 ## Context
 
 LifeLog shipped as a calm, warm-paper local-first PWA (a five-second logbook where elapsed time is the headline). The owner wants a **distinctive visual identity** so the product stands apart, plus a **rebrand**. Through visual brainstorming we locked:

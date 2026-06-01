@@ -73,7 +73,7 @@ export async function importAll(file: Blob): Promise<ImportResult> {
   const zip = await JSZip.loadAsync(new Uint8Array(await file.arrayBuffer()))
   const manifestFile = zip.file(MANIFEST_NAME)
   if (!manifestFile) {
-    throw new Error('This isn’t a Cairn backup file.')
+    throw new Error('This isn’t a Waystone backup file.')
   }
 
   let manifest: {
