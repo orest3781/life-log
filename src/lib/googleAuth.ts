@@ -71,14 +71,24 @@ async function getTokenClient(): Promise<TokenClient> {
   return tokenClient
 }
 
+// Load the Google script and initialize the token client ahead of time, so the
+// later requestAccessToken() can fire synchronously inside the user's click.
+// Without this, the first click waits on the script download — which drops the
+// browser's transient activation and the popup is blocked (popup_failed_to_open).
+export function preloadGoogleAuth(): void {
+  if (!CLIENT_ID) return
+  void getTokenClient().catch(() => {})
+}
+
 // Returns a valid access token, reusing the in-memory one until it nears
 // expiry. The first call (and any after the ~1h token lapses) shows Google's
-// account/consent UI, so it must originate from a user gesture.
+// account/consent UI, so it must originate from a user gesture. When the client
+// was preloaded, we avoid awaiting so the popup opens within that gesture.
 export async function getAccessToken(): Promise<string> {
   if (!CLIENT_ID) throw new Error('Google Drive is not configured.')
   if (accessToken && Date.now() < tokenExpiry - 60_000) return accessToken
 
-  const client = await getTokenClient()
+  const client = tokenClient ?? (await getTokenClient())
   return new Promise<string>((resolve, reject) => {
     client.callback = (resp) => {
       if (resp.error || !resp.access_token) {

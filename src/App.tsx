@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { seedIfEmpty } from './db/db'
+import { preloadGoogleAuth } from './lib/googleAuth'
 import { LedgerScreen } from './components/LedgerScreen'
 
 export default function App() {
@@ -7,6 +8,9 @@ export default function App() {
 
   useEffect(() => {
     seedIfEmpty().finally(() => setReady(true))
+    // Warm up Google sign-in so the Drive "Connect" popup opens within the
+    // user's click instead of being blocked behind a script download.
+    preloadGoogleAuth()
   }, [])
 
   if (!ready) return null
