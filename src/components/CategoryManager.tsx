@@ -12,16 +12,16 @@ import {
 import type { Category } from '../types'
 
 const PALETTE = [
-  '#4f86c6',
-  '#5b9d5b',
-  '#c98b3a',
-  '#c85c7e',
+  '#6f8fae',
+  '#7e9b6e',
+  '#c08457',
+  '#b06b86',
   '#8a6fc0',
-  '#3aa6a0',
-  '#c0563f',
-  '#7a8a3f',
-  '#b6587d',
-  '#5f6f8a',
+  '#3f7d6e',
+  '#b5503a',
+  '#9a8a4f',
+  '#6f7f9a',
+  '#a06a55',
 ]
 
 interface CategoryManagerProps {
@@ -142,7 +142,7 @@ export function CategoryManager({ categories, onClose }: CategoryManagerProps) {
         </ul>
 
         {/* Add new */}
-        <div className="rounded-2xl bg-surface-2 p-3">
+        <div className="brut-sm bg-surface-2 p-3">
           <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">
             Add category
           </div>
@@ -151,7 +151,7 @@ export function CategoryManager({ categories, onClose }: CategoryManagerProps) {
               value={newEmoji}
               onChange={(e) => setNewEmoji(e.target.value)}
               aria-label="New emoji"
-              className="w-10 rounded-lg bg-surface py-1.5 text-center text-lg outline-none"
+              className="w-10 rounded-lg border-2 border-ink bg-surface py-1.5 text-center text-lg outline-none"
             />
             <input
               value={newName}
@@ -159,13 +159,13 @@ export function CategoryManager({ categories, onClose }: CategoryManagerProps) {
               onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
               placeholder="Name"
               aria-label="New name"
-              className="min-w-0 flex-1 rounded-lg bg-surface px-3 py-1.5 text-[15px] text-ink outline-none placeholder:text-faint"
+              className="min-w-0 flex-1 rounded-lg border-2 border-ink bg-surface px-3 py-1.5 text-[15px] text-ink outline-none placeholder:text-faint"
             />
             <button
               type="button"
               onClick={handleAdd}
               disabled={!newName.trim()}
-              className="rounded-lg bg-accent px-4 py-1.5 text-sm font-semibold text-white disabled:opacity-40"
+              className="rounded-lg border-2 border-ink bg-accent px-4 py-1.5 text-sm font-semibold text-white disabled:opacity-40"
             >
               Add
             </button>

@@ -61,7 +61,7 @@ export function SettingsSheet({ onClose, onOpenCategories }: SettingsSheetProps)
               type="button"
               onClick={handleExport}
               disabled={busy}
-              className="rounded-xl bg-accent py-3 font-semibold text-white disabled:opacity-50"
+              className="brut-press rounded-xl border-[2.5px] border-ink bg-accent py-3 font-semibold text-white shadow-[3px_3px_0_var(--color-ink)] disabled:opacity-50"
             >
               Export backup
             </button>
@@ -69,7 +69,7 @@ export function SettingsSheet({ onClose, onOpenCategories }: SettingsSheetProps)
               type="button"
               onClick={() => fileRef.current?.click()}
               disabled={busy}
-              className="rounded-xl bg-surface-2 py-3 font-medium text-ink disabled:opacity-50"
+              className="rounded-xl border-2 border-ink bg-surface py-3 font-medium text-ink disabled:opacity-50"
             >
               Import backup
             </button>
@@ -97,9 +97,9 @@ export function SettingsSheet({ onClose, onOpenCategories }: SettingsSheetProps)
 
         <Section title="About">
           <p className="text-sm leading-relaxed text-muted">
-            LifeLog is a five-second logbook for your own life. Type what
-            happened, tap a category, done — and every entry quietly tells you
-            how long ago it was. No accounts, no nagging.
+            Cairn is a five-second logbook for your life. Mark what happened,
+            tap a category, done — and every entry quietly tells you how long
+            ago it was. No accounts, no nagging.
           </p>
         </Section>
       </div>
@@ -129,7 +129,7 @@ function Row({ label, onClick }: { label: string; onClick: () => void }) {
     <button
       type="button"
       onClick={onClick}
-      className="flex w-full items-center justify-between rounded-xl bg-surface-2 px-4 py-3 text-[15px] text-ink hover:opacity-90"
+      className="flex w-full items-center justify-between rounded-xl border-2 border-ink bg-surface px-4 py-3 text-[15px] text-ink"
     >
       {label}
       <span className="text-muted">›</span>
@@ -146,7 +146,7 @@ function DriveSection() {
       <p className="text-sm leading-relaxed text-muted">
         Optional Google Drive sync isn't enabled in this build. Add a Google
         OAuth client ID (<code className="text-ink">VITE_GOOGLE_CLIENT_ID</code>)
-        to back up automatically to a "LifeLog" folder in your own Drive.
+        to back up automatically to a private folder in your own Drive.
       </p>
     )
   }
@@ -155,15 +155,15 @@ function DriveSection() {
     return (
       <>
         <p className="mb-3 text-sm leading-relaxed text-muted">
-          Connect Google Drive to automatically back up to a "LifeLog" folder
-          you own. LifeLog can only see the files it creates — nothing else in
-          your Drive.
+          Connect Google Drive to automatically back up to a private folder you
+          own. Cairn can only see the files it creates — nothing else in your
+          Drive.
         </p>
         <button
           type="button"
           onClick={drive.connect}
           disabled={working}
-          className="rounded-xl bg-accent px-4 py-3 font-semibold text-white disabled:opacity-50"
+          className="brut-press rounded-xl border-[2.5px] border-ink bg-accent px-4 py-3 font-semibold text-white shadow-[3px_3px_0_var(--color-ink)] disabled:opacity-50"
         >
           {working ? 'Connecting…' : 'Connect Google Drive'}
         </button>
@@ -176,7 +176,7 @@ function DriveSection() {
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex items-center justify-between rounded-xl bg-surface-2 px-4 py-3">
+      <div className="brut-sm flex items-center justify-between bg-surface px-4 py-3">
         <div>
           <div className="text-[15px] font-medium text-ink">Connected</div>
           <div className="text-xs text-muted">
@@ -191,19 +191,19 @@ function DriveSection() {
       <button
         type="button"
         onClick={drive.toggleAuto}
-        className="flex items-center justify-between rounded-xl bg-surface-2 px-4 py-3 text-[15px] text-ink"
+        className="flex items-center justify-between rounded-xl border-2 border-ink bg-surface px-4 py-3 text-[15px] text-ink"
         role="switch"
         aria-checked={drive.autoBackup}
       >
         Auto-backup after changes
         <span
-          className={`relative h-6 w-10 rounded-full transition-colors ${
-            drive.autoBackup ? 'bg-accent' : 'bg-faint'
+          className={`relative h-6 w-10 rounded-full border-2 border-ink transition-colors ${
+            drive.autoBackup ? 'bg-accent' : 'bg-surface-2'
           }`}
         >
           <span
-            className={`absolute top-0.5 size-5 rounded-full bg-white transition-all ${
-              drive.autoBackup ? 'left-[18px]' : 'left-0.5'
+            className={`absolute top-[2px] size-4 rounded-full border-2 border-ink bg-white transition-all ${
+              drive.autoBackup ? 'left-[18px]' : 'left-[2px]'
             }`}
           />
         </span>
@@ -214,7 +214,7 @@ function DriveSection() {
           type="button"
           onClick={drive.backup}
           disabled={working}
-          className="flex-1 rounded-xl bg-accent py-3 font-semibold text-white disabled:opacity-50"
+          className="brut-press flex-1 rounded-xl border-[2.5px] border-ink bg-accent py-3 font-semibold text-white shadow-[3px_3px_0_var(--color-ink)] disabled:opacity-50"
         >
           {working ? 'Working…' : 'Back up now'}
         </button>
@@ -222,7 +222,7 @@ function DriveSection() {
           type="button"
           onClick={drive.restore}
           disabled={working}
-          className="flex-1 rounded-xl bg-surface-2 py-3 font-medium text-ink disabled:opacity-50"
+          className="flex-1 rounded-xl border-2 border-ink bg-surface py-3 font-medium text-ink disabled:opacity-50"
         >
           Restore
         </button>

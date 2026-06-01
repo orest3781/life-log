@@ -132,7 +132,7 @@ export function LogSheet({ mode, entry, categories, onClose }: LogSheetProps) {
           type="button"
           disabled={!canSave}
           onClick={handleSave}
-          className="w-full rounded-xl bg-accent py-3 text-center font-semibold text-white transition-opacity disabled:opacity-40"
+          className="brut-press w-full rounded-xl border-[2.5px] border-ink bg-accent py-3 text-center font-semibold text-white shadow-[3px_3px_0_var(--color-ink)] disabled:opacity-40"
         >
           {saving ? 'Saving…' : 'Save'}
         </button>
@@ -145,7 +145,7 @@ export function LogSheet({ mode, entry, categories, onClose }: LogSheetProps) {
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="What happened?"
-          className="w-full border-b border-line bg-transparent pb-2 text-lg text-ink outline-none placeholder:text-faint focus:border-accent"
+          className="w-full border-b-2 border-ink bg-transparent pb-2 font-display text-lg font-medium text-ink outline-none placeholder:font-normal placeholder:text-faint"
         />
 
         {/* Category picker */}
@@ -159,19 +159,10 @@ export function LogSheet({ mode, entry, categories, onClose }: LogSheetProps) {
                   key={c.id}
                   type="button"
                   onClick={() => setCategoryId(c.id)}
-                  className="rounded-full px-3 py-1.5 text-sm font-medium ring-1 transition-all"
-                  style={
-                    active
-                      ? {
-                          backgroundColor: c.color,
-                          color: '#fff',
-                          borderColor: c.color,
-                        }
-                      : {
-                          backgroundColor: c.color + '1a',
-                          color: c.color,
-                        }
-                  }
+                  className="rounded-full border-2 border-ink px-3 py-1.5 text-sm font-semibold text-ink transition-colors"
+                  style={{
+                    backgroundColor: active ? c.color : c.color + '33',
+                  }}
                 >
                   {c.emoji} {c.name}
                 </button>
@@ -203,7 +194,7 @@ export function LogSheet({ mode, entry, categories, onClose }: LogSheetProps) {
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="grid size-16 place-items-center rounded-xl border border-dashed border-line text-muted hover:border-accent hover:text-accent"
+              className="grid size-16 place-items-center rounded-xl border-2 border-dashed border-ink text-ink"
               aria-label="Add photo"
             >
               <ImageIcon width={22} height={22} />
@@ -242,7 +233,7 @@ export function LogSheet({ mode, entry, categories, onClose }: LogSheetProps) {
               onChange={(e) => setNote(e.target.value)}
               rows={3}
               placeholder="Any details…"
-              className="w-full resize-none rounded-xl border border-line bg-surface px-3 py-2 text-[15px] text-ink outline-none placeholder:text-faint focus:border-accent"
+              className="w-full resize-none rounded-xl border-2 border-ink bg-surface px-3 py-2 text-[15px] text-ink outline-none placeholder:text-faint"
             />
           </div>
         ) : (
@@ -265,7 +256,7 @@ export function LogSheet({ mode, entry, categories, onClose }: LogSheetProps) {
                   key={preset.label}
                   type="button"
                   onClick={() => setRemindAt(preset.add(Date.now()).getTime())}
-                  className="rounded-full bg-surface-2 px-3 py-1.5 text-sm text-muted hover:text-ink"
+                  className="rounded-full border-2 border-ink bg-surface px-3 py-1.5 text-sm font-medium text-ink"
                 >
                   {preset.label}
                 </button>
@@ -273,7 +264,7 @@ export function LogSheet({ mode, entry, categories, onClose }: LogSheetProps) {
               <button
                 type="button"
                 onClick={() => setRemindAt(addWeeks(Date.now(), 1).getTime())}
-                className="rounded-full bg-accent-soft px-3 py-1.5 text-sm font-medium text-accent"
+                className="rounded-full border-2 border-ink bg-accent-soft px-3 py-1.5 text-sm font-medium text-accent"
               >
                 Pick date…
               </button>
@@ -288,7 +279,7 @@ export function LogSheet({ mode, entry, categories, onClose }: LogSheetProps) {
                   e.target.value &&
                   setRemindAt(fromDateInputValue(e.target.value))
                 }
-                className="rounded-xl border border-line bg-surface px-3 py-2 text-[15px] text-ink outline-none focus:border-accent"
+                className="rounded-xl border-2 border-ink bg-surface px-3 py-2 text-[15px] text-ink outline-none"
               />
               <button
                 type="button"

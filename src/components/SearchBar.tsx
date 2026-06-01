@@ -22,10 +22,8 @@ function Chip({
     <button
       type="button"
       onClick={onClick}
-      className={`shrink-0 rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
-        active
-          ? 'bg-ink text-paper'
-          : 'bg-surface-2 text-muted hover:text-ink'
+      className={`shrink-0 rounded-full border-2 border-ink px-3 py-1.5 text-sm font-semibold transition-colors ${
+        active ? 'bg-ink text-paper' : 'bg-surface text-ink'
       }`}
     >
       {children}
@@ -51,7 +49,7 @@ export function SearchBar({
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
           placeholder="Search your log…"
-          className="mb-2 w-full rounded-xl border border-line bg-surface px-4 py-2.5 text-[15px] text-ink outline-none placeholder:text-faint focus:border-accent"
+          className="mb-2 w-full rounded-xl border-2 border-ink bg-surface px-4 py-2.5 text-[15px] text-ink outline-none placeholder:text-faint"
         />
       )}
       {categories.length > 0 && (

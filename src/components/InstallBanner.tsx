@@ -28,14 +28,14 @@ export function InstallBanner() {
 
   return (
     <div className="anim-slide-down px-5 pt-3">
-      <div className="relative flex items-start gap-3 rounded-2xl bg-surface-2 p-3 pr-9">
-        <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-accent text-white">
+      <div className="brut-sm relative flex items-start gap-3 bg-surface p-3 pr-9">
+        <div className="grid size-10 shrink-0 place-items-center rounded-xl border-2 border-ink bg-accent text-white">
           <DownloadIcon width={20} height={20} />
         </div>
 
         <div className="min-w-0 flex-1">
           <div className="text-[15px] font-semibold text-ink">
-            Add LifeLog to your home screen
+            Add Cairn to your home screen
           </div>
 
           {canInstall ? (
@@ -46,7 +46,7 @@ export function InstallBanner() {
               <button
                 type="button"
                 onClick={promptInstall}
-                className="mt-2 rounded-lg bg-accent px-4 py-1.5 text-sm font-semibold text-white active:scale-95"
+                className="brut-press mt-2 rounded-lg border-2 border-ink bg-accent px-4 py-1.5 text-sm font-semibold text-white shadow-[2px_2px_0_var(--color-ink)]"
               >
                 Install
               </button>

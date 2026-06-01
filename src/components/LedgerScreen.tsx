@@ -13,6 +13,7 @@ import { EntryDetail } from './EntryDetail'
 import { SettingsSheet } from './SettingsSheet'
 import { CategoryManager } from './CategoryManager'
 import { InstallBanner } from './InstallBanner'
+import { CairnMark } from './CairnMark'
 import { GearIcon, PlusIcon, SearchIcon } from './icons'
 import type { Category, Entry } from '../types'
 
@@ -52,9 +53,10 @@ export function LedgerScreen() {
   return (
     <div className="mx-auto flex min-h-full max-w-md flex-col">
       {/* Header */}
-      <header className="sticky top-0 z-20 flex items-center gap-2 bg-paper/90 px-5 py-3 backdrop-blur">
-        <h1 className="flex-1 text-2xl font-bold tracking-tight text-ink">
-          LifeLog
+      <header className="sticky top-0 z-20 flex items-center gap-2 border-b-2 border-ink bg-paper px-5 py-3">
+        <h1 className="flex flex-1 items-center gap-2 font-display text-2xl font-bold tracking-tight text-ink">
+          <CairnMark size={26} />
+          Cairn
         </h1>
         <button
           type="button"
@@ -64,19 +66,19 @@ export function LedgerScreen() {
             setSearchOpen((v) => !v)
             if (searchOpen) setSearch('')
           }}
-          className={`grid size-10 place-items-center rounded-full hover:bg-surface-2 ${
-            searchOpen ? 'text-accent' : 'text-muted'
+          className={`brut-press grid size-10 place-items-center rounded-full border-2 border-ink ${
+            searchOpen ? 'bg-accent text-white' : 'bg-surface text-ink'
           }`}
         >
-          <SearchIcon width={22} height={22} />
+          <SearchIcon width={20} height={20} />
         </button>
         <button
           type="button"
           aria-label="Settings"
           onClick={() => setView({ kind: 'settings' })}
-          className="grid size-10 place-items-center rounded-full text-muted hover:bg-surface-2"
+          className="brut-press grid size-10 place-items-center rounded-full border-2 border-ink bg-surface text-ink"
         >
-          <GearIcon width={22} height={22} />
+          <GearIcon width={20} height={20} />
         </button>
       </header>
 
@@ -105,7 +107,7 @@ export function LedgerScreen() {
         {loading ? null : entries.length === 0 ? (
           <EmptyState filtering={filtering} />
         ) : (
-          <ul className="divide-y divide-line">
+          <ul className="flex flex-col gap-3 px-5">
             {entries.map((entry) => (
               <EntryRow
                 key={entry.id}
@@ -129,7 +131,7 @@ export function LedgerScreen() {
             type="button"
             aria-label="Log something"
             onClick={() => setView({ kind: 'create' })}
-            className="pointer-events-auto grid size-16 place-items-center rounded-full bg-accent text-white shadow-lg shadow-black/20 transition-transform active:scale-95"
+            className="brut-press pointer-events-auto grid size-16 place-items-center rounded-full border-[3px] border-ink bg-accent text-white shadow-[5px_5px_0_var(--color-ink)]"
           >
             <PlusIcon width={28} height={28} />
           </button>
@@ -187,10 +189,12 @@ function EmptyState({ filtering }: { filtering: boolean }) {
   }
   return (
     <div className="px-8 py-24 text-center">
-      <div className="text-lg font-medium text-ink">Your logbook is empty</div>
+      <div className="font-display text-xl font-bold text-ink">
+        Your cairn is empty
+      </div>
       <p className="mx-auto mt-2 max-w-xs text-[15px] leading-relaxed text-muted">
         Tap the <span className="font-semibold text-accent">+</span> button to
-        log what just happened. Later, you'll see exactly how long ago it was.
+        mark what just happened. Later, you'll see exactly how long ago it was.
       </p>
     </div>
   )

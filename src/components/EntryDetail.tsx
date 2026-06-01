@@ -42,7 +42,7 @@ export function EntryDetail({
           type="button"
           onClick={() => onEdit(entry)}
           aria-label="Edit entry"
-          className="mt-2 grid size-9 place-items-center rounded-full text-muted hover:bg-surface-2 active:scale-95"
+          className="brut-press mt-2 grid size-9 place-items-center rounded-full border-2 border-ink bg-surface text-ink"
         >
           <PencilIcon width={18} height={18} />
         </button>
@@ -53,14 +53,14 @@ export function EntryDetail({
             <button
               type="button"
               onClick={() => setConfirmDelete(false)}
-              className="flex-1 rounded-xl bg-surface-2 py-3 font-medium text-ink"
+              className="flex-1 rounded-xl border-2 border-ink bg-surface py-3 font-medium text-ink"
             >
               Cancel
             </button>
             <button
               type="button"
               onClick={handleDelete}
-              className="flex-1 rounded-xl bg-danger py-3 font-semibold text-white"
+              className="brut-press flex-1 rounded-xl border-[2.5px] border-ink bg-danger py-3 font-semibold text-white shadow-[3px_3px_0_var(--color-ink)]"
             >
               Delete
             </button>
@@ -69,7 +69,7 @@ export function EntryDetail({
           <button
             type="button"
             onClick={() => setConfirmDelete(true)}
-            className="flex w-full items-center justify-center gap-2 rounded-xl py-3 font-medium text-danger hover:bg-surface-2"
+            className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-ink py-3 font-medium text-danger"
           >
             <TrashIcon width={18} height={18} /> Delete entry
           </button>
@@ -86,7 +86,7 @@ export function EntryDetail({
         <div>
           <div className="text-xl font-medium text-ink">{entry.title}</div>
           <div className="mt-1 flex items-baseline gap-2">
-            <span className="text-3xl font-bold tracking-tight text-ink">
+            <span className="font-display text-4xl font-bold tracking-tight text-ink">
               {formatElapsed(entry.occurredAt, now)}
             </span>
           </div>
@@ -103,7 +103,7 @@ export function EntryDetail({
                 <img
                   src={p.url}
                   alt=""
-                  className="aspect-square w-full rounded-xl object-cover"
+                  className="aspect-square w-full rounded-xl border-2 border-ink object-cover"
                 />
               </a>
             ))}
@@ -117,7 +117,7 @@ export function EntryDetail({
         )}
 
         {reminderActive && entry.remindAt !== undefined && (
-          <div className="flex items-center justify-between rounded-xl bg-accent-soft px-4 py-3">
+          <div className="brut-sm flex items-center justify-between bg-accent-soft px-4 py-3">
             <span className="text-sm text-accent">
               Check back {formatElapsed(entry.remindAt, now)} ·{' '}
               {format(entry.remindAt, 'MMM d, yyyy')}

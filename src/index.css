@@ -1,34 +1,39 @@
 @import 'tailwindcss';
 
 @theme {
-  --color-paper: #faf9f7;
-  --color-surface: #ffffff;
-  --color-surface-2: #f2efea;
-  --color-ink: #211f1d;
-  --color-muted: #8a8076;
-  --color-faint: #b6ad9f;
-  --color-line: #e8e3db;
-  --color-accent: #2f8f7f;
-  --color-accent-soft: #e2f0ec;
-  --color-danger: #c0563f;
+  /* Bone & Teal — muted neo-brutalist palette */
+  --color-paper: #e8e1d3;
+  --color-backdrop: #ddd4c2;
+  --color-surface: #fbf8f1;
+  --color-surface-2: #efe9dc;
+  --color-ink: #2a2622;
+  --color-muted: #6b6052;
+  --color-faint: #a89c86;
+  --color-line: #d8cdb5;
+  --color-accent: #3f7d6e;
+  --color-accent-soft: #d9e6e1;
+  --color-danger: #b5503a;
 
   --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI',
     Roboto, Helvetica, Arial, sans-serif;
+  --font-display: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
 }
 
-/* Dark mode: flip the raw token values; utilities reference these vars. */
+/* Dark mode: warm near-black ground, light ink so the brutalist edges and
+   hard shadows still read against the dark. */
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-paper: #1a1816;
-    --color-surface: #25211e;
-    --color-surface-2: #2f2a26;
-    --color-ink: #f0ebe4;
-    --color-muted: #a59c8f;
-    --color-faint: #6f665b;
-    --color-line: #38322c;
-    --color-accent: #4bb29f;
-    --color-accent-soft: #1f3833;
-    --color-danger: #e0735a;
+    --color-paper: #1b1916;
+    --color-backdrop: #14120f;
+    --color-surface: #262019;
+    --color-surface-2: #312a22;
+    --color-ink: #e9e0cf;
+    --color-muted: #a99e8c;
+    --color-faint: #6f6557;
+    --color-line: #3a352d;
+    --color-accent: #4ea892;
+    --color-accent-soft: #1f3a34;
+    --color-danger: #d4795f;
   }
 }
 
@@ -45,22 +50,53 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
-  /* Respect device safe areas (notch / home indicator) when installed. */
   padding: env(safe-area-inset-top) env(safe-area-inset-right)
     env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 
-/* Remove the tap highlight so our own active states read as native. */
 * {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Hide scrollbars on horizontal chip rows but keep scrollability. */
+.font-display {
+  font-family: var(--font-display);
+}
+
 .no-scrollbar {
   scrollbar-width: none;
 }
 .no-scrollbar::-webkit-scrollbar {
   display: none;
+}
+
+/* ---- Neo-brutalist primitives -------------------------------------------
+   Borders and the blur-free offset shadow are ALWAYS ink; color comes from
+   fills, never from the lines. */
+.brut {
+  border: 3px solid var(--color-ink);
+  border-radius: 18px;
+  box-shadow: 5px 5px 0 var(--color-ink);
+}
+
+.brut-sm {
+  border: 2.5px solid var(--color-ink);
+  border-radius: 14px;
+  box-shadow: 3px 3px 0 var(--color-ink);
+}
+
+/* Tactile press: the element sinks into its own shadow. */
+.brut-press {
+  transition:
+    transform 0.06s ease,
+    box-shadow 0.06s ease;
+}
+.brut-press:active {
+  transform: translate(3px, 3px);
+  box-shadow: 0 0 0 var(--color-ink);
+}
+.brut-sm.brut-press:active {
+  transform: translate(3px, 3px);
+  box-shadow: 0 0 0 var(--color-ink);
 }
 
 @keyframes fade-in {
@@ -95,11 +131,9 @@ body {
 .anim-fade-in {
   animation: fade-in 0.18s ease-out;
 }
-
 .anim-sheet-up {
   animation: sheet-up 0.26s cubic-bezier(0.22, 1, 0.36, 1);
 }
-
 .anim-slide-down {
   animation: slide-down 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -109,5 +143,11 @@ body {
   .anim-sheet-up,
   .anim-slide-down {
     animation: none;
+  }
+  .brut-press {
+    transition: none;
+  }
+  .brut-press:active {
+    transform: none;
   }
 }

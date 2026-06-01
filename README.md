@@ -1,8 +1,10 @@
-# LifeLog
+# Cairn
 
-A five-second logbook for your own life. Type what happened, tap a category, done — the date defaults to today. Then every entry quietly tells you **how long ago** it was: *"battery — 14 months ago,"* *"cycling started — 3 weeks ago."*
+**Mark the moment. Find it later.** A five-second logbook for your life. Type what happened, tap a category, done — the date defaults to today. Then every entry quietly tells you **how long ago** it was: *"battery — 14 months ago,"* *"cycling started — 3 weeks ago."*
 
-We obsessively schedule the future and completely forget the past. Calendars are built for appointments, not for *"when did I do that thing."* LifeLog is the clean ledger you search when you need the answer and ignore the rest of the time. **Elapsed time is the product.**
+We obsessively schedule the future and completely forget the past. Calendars are built for appointments, not for *"when did I do that thing."* Cairn is the clean ledger you search when you need the answer and ignore the rest of the time. **Elapsed time is the product.** Like a stack of trail stones, each entry marks a moment so future-you can find it.
+
+Design: neo-brutalist "Bone & Teal" — chunky ink outlines, hard shadows, Space Grotesk display type.
 
 - **Owned & private** — everything lives on your device (IndexedDB). No accounts, no servers, no feed.
 - **Offline-first PWA** — installs to your home screen, works with no connection.
@@ -33,8 +35,8 @@ npm run preview  # preview the production build
 
 ## Google Drive sync (optional)
 
-LifeLog can auto-back up to a **"LifeLog" folder you own** in Google Drive,
-using the least-privilege `drive.file` scope (the app only ever sees files it
+Cairn can auto-back up to a **private folder you own** in Google Drive, using
+the least-privilege `drive.file` scope (the app only ever sees files it
 creates). It stays fully local-first if you don't enable it.
 
 To turn it on, provide a Google OAuth Client ID via `VITE_GOOGLE_CLIENT_ID` —

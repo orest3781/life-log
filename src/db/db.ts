@@ -23,10 +23,10 @@ export const db = new LifeLogDB()
 export const STARTER_CATEGORIES: Array<
   Pick<Category, 'name' | 'emoji' | 'color'>
 > = [
-  { name: 'Car', emoji: '🚗', color: '#4f86c6' },
-  { name: 'Garden', emoji: '🌱', color: '#5b9d5b' },
-  { name: 'Home', emoji: '🏠', color: '#c98b3a' },
-  { name: 'Health', emoji: '❤️', color: '#c85c7e' },
+  { name: 'Car', emoji: '🚗', color: '#6f8fae' },
+  { name: 'Garden', emoji: '🌱', color: '#7e9b6e' },
+  { name: 'Home', emoji: '🏠', color: '#c08457' },
+  { name: 'Health', emoji: '❤️', color: '#b06b86' },
   { name: 'Pets', emoji: '🐾', color: '#8a6fc0' },
 ]
 

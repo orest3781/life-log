@@ -11,8 +11,9 @@ interface EntryRowProps {
   onOpen: (entry: Entry) => void
 }
 
-// One ledger row. Elapsed time is the dominant element; the absolute date and
-// category sit quietly around it.
+// One ledger card. Elapsed time is the dominant element (display type); the
+// absolute date and category sit quietly around it. Chunky ink outline + hard
+// shadow, with a tactile press.
 export function EntryRow({ entry, category, now, onOpen }: EntryRowProps) {
   const photos = usePhotos(entry.id)
   const hasDueReminder =
@@ -25,10 +26,10 @@ export function EntryRow({ entry, category, now, onOpen }: EntryRowProps) {
       <button
         type="button"
         onClick={() => onOpen(entry)}
-        className="flex w-full items-center gap-3 px-5 py-4 text-left transition-colors hover:bg-surface-2 active:bg-surface-2"
+        className="brut-sm brut-press flex w-full items-center gap-3 bg-surface px-4 py-3.5 text-left"
       >
         <div className="min-w-0 flex-1">
-          <div className="mb-1 flex items-center gap-2">
+          <div className="mb-1.5 flex items-center gap-2">
             {category && <CategoryChip category={category} />}
             {hasDueReminder && (
               <BellIcon width={14} height={14} className="text-accent" />
@@ -36,7 +37,7 @@ export function EntryRow({ entry, category, now, onOpen }: EntryRowProps) {
           </div>
           <div className="truncate text-[15px] text-ink">{entry.title}</div>
           <div className="mt-0.5 flex items-baseline gap-2">
-            <span className="text-xl font-semibold tracking-tight text-ink">
+            <span className="font-display text-2xl font-bold tracking-tight text-ink">
               {formatElapsed(entry.occurredAt, now)}
             </span>
             <span className="text-sm text-muted">
@@ -50,10 +51,10 @@ export function EntryRow({ entry, category, now, onOpen }: EntryRowProps) {
             <img
               src={photos[0].url}
               alt=""
-              className="size-14 rounded-xl object-cover"
+              className="size-14 rounded-xl border-2 border-ink object-cover"
             />
             {photos.length > 1 && (
-              <span className="absolute -bottom-1 -right-1 grid h-5 min-w-5 place-items-center rounded-full bg-ink px-1 text-[11px] font-semibold text-paper">
+              <span className="absolute -bottom-1.5 -right-1.5 grid h-5 min-w-5 place-items-center rounded-full border-2 border-ink bg-ink px-1 text-[11px] font-semibold text-paper">
                 +{photos.length - 1}
               </span>
             )}
