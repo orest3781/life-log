@@ -1,17 +1,33 @@
+import { useEffect, useState } from 'react'
 import { useInstallPrompt } from '../hooks/useInstallPrompt'
 import { CloseIcon, DownloadIcon, ShareIcon } from './icons'
 
+// How long to let the visitor settle in before gently sliding the prompt in.
+const APPEAR_DELAY_MS = 4000
+
 // A calm, dismissible prompt inviting the visitor to save LifeLog to their
-// home screen. Uses the real install dialog on Chromium; on iOS Safari (which
-// has no install API) it shows the manual Share → Add to Home Screen steps.
-// Never appears once installed, and stays hidden after being dismissed.
+// home screen. Slides in a few seconds after load. Uses the real install
+// dialog on Chromium; on iOS Safari (which has no install API) it shows the
+// manual Share → Add to Home Screen steps. Never appears once installed, and
+// stays hidden after being dismissed.
 export function InstallBanner() {
   const { canInstall, showIOSHint, promptInstall, dismiss } = useInstallPrompt()
+  const available = canInstall || showIOSHint
+  const [appeared, setAppeared] = useState(false)
 
-  if (!canInstall && !showIOSHint) return null
+  useEffect(() => {
+    if (!available) {
+      setAppeared(false)
+      return
+    }
+    const t = setTimeout(() => setAppeared(true), APPEAR_DELAY_MS)
+    return () => clearTimeout(t)
+  }, [available])
+
+  if (!available || !appeared) return null
 
   return (
-    <div className="px-5 pt-3">
+    <div className="anim-slide-down px-5 pt-3">
       <div className="relative flex items-start gap-3 rounded-2xl bg-surface-2 p-3 pr-9">
         <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-accent text-white">
           <DownloadIcon width={20} height={20} />

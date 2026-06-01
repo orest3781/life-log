@@ -31,9 +31,20 @@ npm run test     # run the test suite
 npm run preview  # preview the production build
 ```
 
-## Roadmap
+## Google Drive sync (optional)
 
-- **Next milestone:** optional Google Drive auto-backup (account-free OAuth token flow) on top of the local-first core.
+LifeLog can auto-back up to a **"LifeLog" folder you own** in Google Drive,
+using the least-privilege `drive.file` scope (the app only ever sees files it
+creates). It stays fully local-first if you don't enable it.
+
+To turn it on, provide a Google OAuth Client ID via `VITE_GOOGLE_CLIENT_ID` —
+see [`.env.example`](.env.example) for the step-by-step. Then in the app:
+**Settings → Cloud backup → Connect Google Drive**. From there you get
+auto-backup after changes, plus manual **Back up now** and **Restore**.
+
+> Note: browser-only OAuth issues short-lived tokens with no refresh token, so
+> auto-backup runs while the app is open after you connect. Truly unattended
+> background sync would need a small server to hold a refresh token (future).
 
 ---
 
