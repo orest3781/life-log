@@ -12,7 +12,9 @@ const MAX_DIM = 1600
 const QUALITY = 0.82
 
 export async function processImage(file: Blob): Promise<ProcessedImage> {
-  const bitmap = await createImageBitmap(file)
+  // `from-image` honours EXIF orientation so portrait phone photos (which carry
+  // a rotation flag rather than rotated pixels) aren't stored sideways.
+  const bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' })
   const { width: sw, height: sh } = bitmap
 
   const scale = Math.min(1, MAX_DIM / Math.max(sw, sh))

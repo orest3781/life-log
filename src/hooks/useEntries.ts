@@ -14,7 +14,10 @@ export function useEntries(filter: EntryFilter): Entry[] | undefined {
   const search = filter.search?.trim().toLowerCase() ?? ''
   const categoryId = filter.categoryId ?? null
   return useLiveQuery(async () => {
-    let arr = await db.entries.orderBy('occurredAt').reverse().toArray()
+    let arr = await db.entries.toArray()
+    // Newest first, breaking same-day ties by when the entry was written so
+    // order is stable and intuitive (latest-logged on top within a day).
+    arr.sort((a, b) => b.occurredAt - a.occurredAt || b.createdAt - a.createdAt)
     if (categoryId) arr = arr.filter((e) => e.categoryId === categoryId)
     if (search) {
       arr = arr.filter(
