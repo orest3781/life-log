@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "icons": "node scripts/generate-icons.mjs"
   },
   "dependencies": {
     "@fontsource/inter": "^5.2.8",
@@ -35,6 +36,7 @@
     "fake-indexeddb": "^6.2.5",
     "globals": "^17.6.0",
     "jsdom": "^29.1.1",
+    "sharp": "^0.34.5",
     "tailwindcss": "^4.3.0",
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.59.2",
