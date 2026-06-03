@@ -6,7 +6,8 @@ import { PencilIcon, TrashIcon } from './icons'
 import { usePhotos } from '../hooks/usePhotos'
 import { useToast } from './Toast'
 import { formatAbsolute, formatElapsed } from '../lib/elapsed'
-import { deleteEntry, getPhotos, restoreEntry, setReminderDone } from '../db/repo'
+import { describeRepeat } from '../lib/reminders'
+import { completeReminder, deleteEntry, getPhotos, restoreEntry } from '../db/repo'
 import type { Category, Entry } from '../types'
 
 interface EntryDetailProps {
@@ -130,16 +131,17 @@ export function EntryDetail({
         )}
 
         {reminderActive && entry.remindAt !== undefined && (
-          <div className="brut-sm flex items-center justify-between bg-accent-soft px-4 py-3">
+          <div className="brut-sm flex items-center justify-between gap-2 bg-accent-soft px-4 py-3">
             <span className="text-sm text-accent">
               Check back {formatElapsed(entry.remindAt, now)} ·{' '}
               {format(entry.remindAt, 'MMM d, yyyy')}
+              {entry.repeat && ` · repeats ${describeRepeat(entry.repeat)}`}
             </span>
             {entry.remindAt <= now && (
               <button
                 type="button"
-                onClick={() => setReminderDone(entry.id, true)}
-                className="text-sm font-semibold text-accent"
+                onClick={() => completeReminder(entry)}
+                className="shrink-0 text-sm font-semibold text-accent"
               >
                 Done
               </button>

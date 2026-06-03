@@ -5,6 +5,7 @@ import { useToast } from './Toast'
 import { ImageIcon, TrashIcon } from './icons'
 import { usePhotos } from '../hooks/usePhotos'
 import { sortForPicker } from '../lib/categories'
+import { REPEAT_PRESETS, sameRule } from '../lib/reminders'
 import { toDateInputValue, fromDateInputValue } from '../lib/elapsed'
 import {
   addEntry,
@@ -12,7 +13,7 @@ import {
   removePhoto,
   updateEntry,
 } from '../db/repo'
-import type { Category, Entry } from '../types'
+import type { Category, Entry, RepeatRule } from '../types'
 
 interface LogSheetProps {
   mode: 'create' | 'edit'
@@ -57,6 +58,7 @@ export function LogSheet({ mode, entry, categories, onClose }: LogSheetProps) {
   const [remindAt, setRemindAt] = useState<number | null>(
     entry?.remindAt ?? null,
   )
+  const [repeat, setRepeat] = useState<RepeatRule | null>(entry?.repeat ?? null)
   const [newPhotos, setNewPhotos] = useState<NewPhoto[]>([])
   const [removedIds, setRemovedIds] = useState<Set<string>>(new Set())
   const [saving, setSaving] = useState(false)
@@ -105,6 +107,7 @@ export function LogSheet({ mode, entry, categories, onClose }: LogSheetProps) {
               categoryId,
               occurredAt,
               remindAt: remindAt ?? undefined,
+              repeat: remindAt !== null ? repeat : null,
             }),
             entry.id)
           : await addEntry({
@@ -113,6 +116,7 @@ export function LogSheet({ mode, entry, categories, onClose }: LogSheetProps) {
               categoryId,
               occurredAt,
               remindAt: remindAt ?? undefined,
+              repeat: remindAt !== null ? repeat : null,
             })
 
       await Promise.all([
@@ -280,24 +284,46 @@ export function LogSheet({ mode, entry, categories, onClose }: LogSheetProps) {
               </button>
             </div>
           ) : (
-            <div className="flex items-center gap-2">
-              <input
-                type="date"
-                value={toDateInputValue(remindAt)}
-                min={toDateInputValue(Date.now())}
-                onChange={(e) =>
-                  e.target.value &&
-                  setRemindAt(fromDateInputValue(e.target.value))
-                }
-                className="rounded-xl border-2 border-ink bg-surface px-3 py-2 text-[15px] text-ink outline-none"
-              />
-              <button
-                type="button"
-                onClick={() => setRemindAt(null)}
-                className="text-sm font-medium text-danger"
-              >
-                Clear
-              </button>
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center gap-2">
+                <input
+                  type="date"
+                  value={toDateInputValue(remindAt)}
+                  min={toDateInputValue(Date.now())}
+                  onChange={(e) =>
+                    e.target.value &&
+                    setRemindAt(fromDateInputValue(e.target.value))
+                  }
+                  className="rounded-xl border-2 border-ink bg-surface px-3 py-2 text-[15px] text-ink outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    setRemindAt(null)
+                    setRepeat(null)
+                  }}
+                  className="text-sm font-medium text-danger"
+                >
+                  Clear
+                </button>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {REPEAT_PRESETS.map((preset) => {
+                  const active = sameRule(repeat, preset.rule)
+                  return (
+                    <button
+                      key={preset.label}
+                      type="button"
+                      onClick={() => setRepeat(preset.rule)}
+                      className={`rounded-full border-2 border-ink px-3 py-1.5 text-sm font-medium ${
+                        active ? 'bg-ink text-paper' : 'bg-surface text-ink'
+                      }`}
+                    >
+                      {preset.label}
+                    </button>
+                  )
+                })}
+              </div>
             </div>
           )}
         </div>

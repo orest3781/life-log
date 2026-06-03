@@ -1,6 +1,7 @@
 import { db } from './db'
-import type { Category, Entry, Photo } from '../types'
+import type { Category, Entry, Photo, RepeatRule } from '../types'
 import { makeThumbnail, processImage } from '../lib/image'
+import { nextOccurrence } from '../lib/reminders'
 
 // ---- Entries -------------------------------------------------------------
 
@@ -10,6 +11,7 @@ export interface EntryInput {
   categoryId: string
   occurredAt: number
   remindAt?: number
+  repeat?: RepeatRule | null
 }
 
 export async function addEntry(input: EntryInput): Promise<string> {
@@ -24,6 +26,7 @@ export async function addEntry(input: EntryInput): Promise<string> {
     createdAt: now,
     updatedAt: now,
     remindAt: input.remindAt,
+    repeat: input.remindAt ? (input.repeat ?? undefined) : undefined,
   }
   await db.transaction('rw', db.entries, db.categories, async () => {
     await db.entries.add(entry)
@@ -42,9 +45,26 @@ export async function updateEntry(
   if (patch.categoryId !== undefined) changes.categoryId = patch.categoryId
   if (patch.occurredAt !== undefined) changes.occurredAt = patch.occurredAt
   if (patch.remindAt !== undefined) changes.remindAt = patch.remindAt
+  if (patch.repeat !== undefined) changes.repeat = patch.repeat ?? undefined
   if (patch.reminderDoneAt !== undefined)
     changes.reminderDoneAt = patch.reminderDoneAt ?? undefined
   await db.entries.update(id, changes)
+}
+
+// Clear a due reminder. If the entry has a repeat rule, advance it to the next
+// occurrence (re-arming it) instead of marking it permanently done.
+export async function completeReminder(entry: Entry): Promise<void> {
+  const now = Date.now()
+  if (entry.repeat && entry.remindAt) {
+    const base = Math.max(entry.remindAt, now) // never schedule into the past
+    await db.entries.update(entry.id, {
+      remindAt: nextOccurrence(base, entry.repeat),
+      reminderDoneAt: undefined,
+      updatedAt: now,
+    })
+  } else {
+    await db.entries.update(entry.id, { reminderDoneAt: now, updatedAt: now })
+  }
 }
 
 export async function deleteEntry(id: string): Promise<void> {

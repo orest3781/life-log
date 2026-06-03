@@ -11,6 +11,12 @@ export interface Category {
   archived: boolean
 }
 
+// An optional recurrence for a reminder, e.g. { unit: 'month', count: 6 }.
+export interface RepeatRule {
+  unit: 'week' | 'month' | 'year'
+  count: number
+}
+
 export interface Entry {
   id: string
   title: string
@@ -21,6 +27,7 @@ export interface Entry {
   updatedAt: number // ms
   remindAt?: number // ms — optional passive "check back" date
   reminderDoneAt?: number // ms — set when the user clears the reminder
+  repeat?: RepeatRule // when set, marking the reminder done schedules the next
 }
 
 export interface Photo {

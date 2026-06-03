@@ -5,7 +5,7 @@ import { useEntries } from '../hooks/useEntries'
 import { useDueReminders } from '../hooks/useDueReminders'
 import { useEntryThumbnails } from '../hooks/useEntryThumbnails'
 import { visibleCategories } from '../lib/categories'
-import { setReminderDone } from '../db/repo'
+import { completeReminder } from '../db/repo'
 import { DueStrip } from './DueStrip'
 import { EntryRow } from './EntryRow'
 import { SearchBar } from './SearchBar'
@@ -100,7 +100,7 @@ export function LedgerScreen() {
           entries={due}
           categoriesById={categoriesById}
           onOpen={(entry) => setView({ kind: 'detail', entry })}
-          onMarkDone={(entry) => setReminderDone(entry.id, true)}
+          onMarkDone={(entry) => completeReminder(entry)}
         />
       )}
 
