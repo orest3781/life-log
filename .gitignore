@@ -27,3 +27,6 @@ dist-ssr
 *.sw?
 
 .vercel
+
+# Playwright MCP artifacts
+.playwright-mcp/
