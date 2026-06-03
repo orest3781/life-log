@@ -27,6 +27,7 @@ export function EntryDetail({
 }: EntryDetailProps) {
   const photos = usePhotos(entry.id)
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const [lightbox, setLightbox] = useState<string | null>(null)
   const toast = useToast()
 
   async function handleDelete() {
@@ -113,14 +114,35 @@ export function EntryDetail({
         {photos.length > 0 && (
           <div className="grid grid-cols-3 gap-2">
             {photos.map((p) => (
-              <a key={p.id} href={p.url} target="_blank" rel="noreferrer">
+              <button
+                key={p.id}
+                type="button"
+                onClick={() => setLightbox(p.url)}
+                aria-label="View photo"
+              >
                 <img
                   src={p.url}
                   alt=""
                   className="aspect-square w-full rounded-xl border-2 border-ink object-cover"
                 />
-              </a>
+              </button>
             ))}
+          </div>
+        )}
+
+        {lightbox && (
+          <div
+            className="anim-fade-in fixed inset-0 z-[70] flex items-center justify-center bg-black/85 p-4"
+            onClick={() => setLightbox(null)}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Photo"
+          >
+            <img
+              src={lightbox}
+              alt=""
+              className="max-h-full max-w-full rounded-lg object-contain"
+            />
           </div>
         )}
 

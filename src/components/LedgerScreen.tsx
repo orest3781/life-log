@@ -14,8 +14,9 @@ import { EntryDetail } from './EntryDetail'
 import { SettingsSheet } from './SettingsSheet'
 import { CategoryManager } from './CategoryManager'
 import { InstallBanner } from './InstallBanner'
+import { SummarySheet } from './SummarySheet'
 import { WaystoneMark } from './WaystoneMark'
-import { GearIcon, PlusIcon, SearchIcon } from './icons'
+import { ClockIcon, GearIcon, PlusIcon, SearchIcon } from './icons'
 import type { Category, Entry } from '../types'
 
 type View =
@@ -24,6 +25,7 @@ type View =
   | { kind: 'edit'; entry: Entry }
   | { kind: 'detail'; entry: Entry }
   | { kind: 'settings' }
+  | { kind: 'summary' }
   | { kind: 'categories' }
 
 export function LedgerScreen() {
@@ -60,6 +62,14 @@ export function LedgerScreen() {
           <WaystoneMark size={26} />
           Waystone
         </h1>
+        <button
+          type="button"
+          aria-label="Last done"
+          onClick={() => setView({ kind: 'summary' })}
+          className="brut-press grid size-10 place-items-center rounded-full border-2 border-ink bg-surface text-ink"
+        >
+          <ClockIcon width={20} height={20} />
+        </button>
         <button
           type="button"
           aria-label="Search"
@@ -146,6 +156,7 @@ export function LedgerScreen() {
         <LogSheet
           mode="create"
           categories={categories}
+          defaultCategoryId={categoryId}
           onClose={() => setView({ kind: 'none' })}
         />
       )}
@@ -164,6 +175,17 @@ export function LedgerScreen() {
           now={now}
           onClose={() => setView({ kind: 'none' })}
           onEdit={(entry) => setView({ kind: 'edit', entry })}
+        />
+      )}
+      {view.kind === 'summary' && categories && (
+        <SummarySheet
+          categories={categories}
+          now={now}
+          onClose={() => setView({ kind: 'none' })}
+          onPick={(id) => {
+            setCategoryId(id)
+            setView({ kind: 'none' })
+          }}
         />
       )}
       {view.kind === 'settings' && (

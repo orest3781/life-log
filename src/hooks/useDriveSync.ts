@@ -5,6 +5,7 @@ import {
   backupNow,
   connectDrive,
   disconnectDrive,
+  friendlyDriveError,
   getDriveState,
   hasLiveToken,
   isConfigured,
@@ -61,7 +62,7 @@ export function useDriveSync(): UseDriveSync {
       setStatus('idle')
     } catch (err) {
       setStatus('error')
-      setMessage(err instanceof Error ? err.message : 'Backup failed.')
+      setMessage(friendlyDriveError(err instanceof Error ? err.message : ''))
     }
   }, [])
 
@@ -96,7 +97,7 @@ export function useDriveSync(): UseDriveSync {
       setStatus('idle')
     } catch (err) {
       setStatus('error')
-      setMessage(err instanceof Error ? err.message : 'Could not connect.')
+      setMessage(friendlyDriveError(err instanceof Error ? err.message : ''))
     }
   }, [])
 
@@ -115,7 +116,7 @@ export function useDriveSync(): UseDriveSync {
       setMessage(found ? 'Restored from Drive.' : 'No backup found in Drive yet.')
     } catch (err) {
       setStatus('error')
-      setMessage(err instanceof Error ? err.message : 'Restore failed.')
+      setMessage(friendlyDriveError(err instanceof Error ? err.message : ''))
     }
   }, [])
 

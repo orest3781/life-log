@@ -41,6 +41,26 @@ function patchState(patch: Partial<DriveState>): DriveState {
 
 export { isConfigured, hasLiveToken }
 
+// Turn raw OAuth / Drive API error text into a plain-language next step.
+export function friendlyDriveError(message: string): string {
+  const m = message.toLowerCase()
+  if (m.includes('not configured'))
+    return 'Google Drive isn’t set up in this build.'
+  if (m.includes('origin_mismatch') || m.includes('origin mismatch'))
+    return 'This site isn’t authorized for Google sign-in yet (origin mismatch). Add it to the OAuth client’s allowed origins.'
+  if (m.includes('popup'))
+    return 'The Google sign-in popup was blocked — allow popups for this site and try again.'
+  if (m.includes('cancel') || m.includes('access_denied'))
+    return 'Sign-in was cancelled.'
+  if (m.includes('403'))
+    return 'Drive denied access (403). Make sure the Google Drive API is enabled and your account is allowed.'
+  if (m.includes('401'))
+    return 'Drive sign-in expired — reconnect to continue.'
+  if (m.includes('failed to fetch') || m.includes('network'))
+    return 'Network error — check your connection and try again.'
+  return 'Something went wrong with Google Drive. Please try again.'
+}
+
 // Begin the OAuth flow (shows Google's UI), then mark as connected and run a
 // first backup so Drive immediately reflects the device.
 export async function connectDrive(): Promise<DriveState> {

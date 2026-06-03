@@ -19,6 +19,8 @@ interface LogSheetProps {
   mode: 'create' | 'edit'
   entry?: Entry
   categories: Category[]
+  /** Pre-selected category for new entries (e.g. the active filter). */
+  defaultCategoryId?: string | null
   onClose: () => void
 }
 
@@ -44,11 +46,17 @@ const REMINDER_PRESETS: Array<{ label: string; add: (d: number) => Date }> = [
 // Create or edit an entry. Optimized so the common path is: type a title,
 // tap a category, Save. Everything else (photos, note, dates, reminder) is an
 // optional tap that stays out of the way.
-export function LogSheet({ mode, entry, categories, onClose }: LogSheetProps) {
+export function LogSheet({
+  mode,
+  entry,
+  categories,
+  defaultCategoryId,
+  onClose,
+}: LogSheetProps) {
   const toast = useToast()
   const [title, setTitle] = useState(entry?.title ?? '')
   const [categoryId, setCategoryId] = useState<string | null>(
-    entry?.categoryId ?? null,
+    entry?.categoryId ?? defaultCategoryId ?? null,
   )
   const [occurredAt, setOccurredAt] = useState<number>(
     entry?.occurredAt ?? Date.now(),
@@ -123,6 +131,7 @@ export function LogSheet({ mode, entry, categories, onClose }: LogSheetProps) {
         ...[...removedIds].map((pid) => removePhoto(pid)),
         ...newPhotos.map((p) => addPhotoFromFile(id, p.file)),
       ])
+      navigator.vibrate?.(8) // subtle confirmation tap on supporting devices
       onClose()
     } catch (err) {
       // Most likely a storage-quota failure while saving photos.
