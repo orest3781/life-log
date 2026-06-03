@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   downloadBackup,
-  ensureLifelogFolder,
+  ensureBackupFolder,
   findBackup,
   uploadBackup,
 } from './drive'
@@ -35,59 +35,86 @@ beforeEach(() => {
 })
 afterEach(() => vi.unstubAllGlobals())
 
-describe('ensureLifelogFolder', () => {
-  it('returns the existing folder without creating one', async () => {
+describe('ensureBackupFolder', () => {
+  it('returns the existing Waystone folder without creating one', async () => {
     queue = [ok({ files: [{ id: 'folder-1' }] })]
-    expect(await ensureLifelogFolder('tok')).toBe('folder-1')
+    expect(await ensureBackupFolder('tok')).toBe('folder-1')
     expect(calls).toHaveLength(1)
     expect((calls[0].init?.headers as Record<string, string>).Authorization).toBe(
       'Bearer tok',
     )
   })
 
-  it('creates the folder when none exists', async () => {
-    queue = [ok({ files: [] }), ok({ id: 'new-folder' })]
-    expect(await ensureLifelogFolder('tok')).toBe('new-folder')
-    expect(calls[1].init?.method).toBe('POST')
+  it('migrates a legacy "LifeLog" folder by renaming it', async () => {
+    queue = [
+      ok({ files: [] }), // no Waystone folder
+      ok({ files: [{ id: 'legacy-1', name: 'LifeLog' }] }), // legacy folder found
+      ok({}), // PATCH rename
+    ]
+    expect(await ensureBackupFolder('tok')).toBe('legacy-1')
+    expect(calls[2].init?.method).toBe('PATCH')
+    expect(calls[2].url).toContain('/legacy-1')
+    expect(calls[2].init?.body).toContain('Waystone')
+  })
+
+  it('creates a fresh folder when neither name exists', async () => {
+    queue = [ok({ files: [] }), ok({ files: [] }), ok({ id: 'new-folder' })]
+    expect(await ensureBackupFolder('tok')).toBe('new-folder')
+    expect(calls[2].init?.method).toBe('POST')
   })
 })
 
 describe('findBackup', () => {
-  it('returns null when the folder has no backup', async () => {
-    queue = [ok({ files: [] })]
+  it('returns null when neither current nor legacy backup exists', async () => {
+    queue = [ok({ files: [] }), ok({ files: [] })]
     expect(await findBackup('tok', 'folder-1')).toBeNull()
   })
 })
 
 describe('uploadBackup', () => {
-  it('overwrites the existing backup with a PATCH media upload', async () => {
+  it('overwrites the current backup with a PATCH media upload', async () => {
     queue = [
-      ok({ files: [{ id: 'folder-1' }] }), // ensureLifelogFolder
-      ok({ files: [{ id: 'backup-1' }] }), // findBackup
-      ok({}), // PATCH
+      ok({ files: [{ id: 'folder-1' }] }), // ensureBackupFolder (Waystone exists)
+      ok({ files: [{ id: 'backup-1', name: 'waystone-backup.zip' }] }), // findBackup
+      ok({}), // PATCH media
     ]
     await uploadBackup('tok', new Blob(['data']))
     expect(calls[2].init?.method).toBe('PATCH')
     expect(calls[2].url).toContain('/backup-1?uploadType=media')
   })
 
+  it('renames a legacy backup before updating it', async () => {
+    queue = [
+      ok({ files: [{ id: 'folder-1' }] }), // folder
+      ok({ files: [] }), // no waystone-backup.zip
+      ok({ files: [{ id: 'backup-1', name: 'lifelog-backup.zip' }] }), // legacy found
+      ok({}), // PATCH rename (metadata)
+      ok({}), // PATCH media
+    ]
+    await uploadBackup('tok', new Blob(['data']))
+    expect(calls[3].init?.method).toBe('PATCH')
+    expect(calls[3].init?.body).toContain('waystone-backup.zip')
+    expect(calls[4].url).toContain('/backup-1?uploadType=media')
+  })
+
   it('creates a new backup with a multipart upload when none exists', async () => {
     queue = [
-      ok({ files: [{ id: 'folder-1' }] }), // ensureLifelogFolder
-      ok({ files: [] }), // findBackup
+      ok({ files: [{ id: 'folder-1' }] }), // folder
+      ok({ files: [] }), // no waystone-backup.zip
+      ok({ files: [] }), // no legacy
       ok({ id: 'backup-2' }), // POST
     ]
     await uploadBackup('tok', new Blob(['data']))
-    expect(calls[2].init?.method).toBe('POST')
-    expect(calls[2].url).toContain('uploadType=multipart')
+    expect(calls[3].init?.method).toBe('POST')
+    expect(calls[3].url).toContain('uploadType=multipart')
   })
 })
 
 describe('downloadBackup', () => {
   it('returns the backup blob when one exists', async () => {
     queue = [
-      ok({ files: [{ id: 'folder-1' }] }),
-      ok({ files: [{ id: 'backup-1' }] }),
+      ok({ files: [{ id: 'folder-1' }] }), // folder
+      ok({ files: [{ id: 'backup-1', name: 'waystone-backup.zip' }] }), // findBackup
       okBlob(new Blob(['the backup'])),
     ]
     const blob = await downloadBackup('tok')
@@ -96,7 +123,11 @@ describe('downloadBackup', () => {
   })
 
   it('returns null when there is no backup yet', async () => {
-    queue = [ok({ files: [{ id: 'folder-1' }] }), ok({ files: [] })]
+    queue = [
+      ok({ files: [{ id: 'folder-1' }] }), // folder
+      ok({ files: [] }), // no current
+      ok({ files: [] }), // no legacy
+    ]
     expect(await downloadBackup('tok')).toBeNull()
   })
 })
