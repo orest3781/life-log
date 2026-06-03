@@ -4,8 +4,9 @@ import { Sheet } from './Sheet'
 import { CategoryChip } from './CategoryChip'
 import { PencilIcon, TrashIcon } from './icons'
 import { usePhotos } from '../hooks/usePhotos'
+import { useToast } from './Toast'
 import { formatAbsolute, formatElapsed } from '../lib/elapsed'
-import { deleteEntry, setReminderDone } from '../db/repo'
+import { deleteEntry, getPhotos, restoreEntry, setReminderDone } from '../db/repo'
 import type { Category, Entry } from '../types'
 
 interface EntryDetailProps {
@@ -25,10 +26,22 @@ export function EntryDetail({
 }: EntryDetailProps) {
   const photos = usePhotos(entry.id)
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const toast = useToast()
 
   async function handleDelete() {
+    // Capture the entry + its photo blobs before deleting so Undo can restore
+    // them faithfully (the in-memory blobs survive the DB delete).
+    const snapshotPhotos = await getPhotos(entry.id)
     await deleteEntry(entry.id)
     onClose()
+    toast.show('Entry deleted', {
+      action: {
+        label: 'Undo',
+        onAction: () => {
+          void restoreEntry(entry, snapshotPhotos)
+        },
+      },
+    })
   }
 
   const reminderActive = entry.remindAt !== undefined && !entry.reminderDoneAt

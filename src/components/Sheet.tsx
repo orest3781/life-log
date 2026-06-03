@@ -1,5 +1,8 @@
-import { useEffect, type ReactNode } from 'react'
+import { useEffect, useRef, type ReactNode } from 'react'
 import { CloseIcon } from './icons'
+
+const FOCUSABLE =
+  'a[href],button:not([disabled]),input:not([disabled]),textarea:not([disabled]),select:not([disabled]),[tabindex]:not([tabindex="-1"])'
 
 interface SheetProps {
   title: string
@@ -13,16 +16,51 @@ interface SheetProps {
 // A bottom sheet: backdrop + slide-up panel, Escape and backdrop-tap to close,
 // body scroll locked while open. Used for logging, entry detail, and settings.
 export function Sheet({ title, onClose, children, footer, headerAction }: SheetProps) {
+  const panelRef = useRef<HTMLDivElement>(null)
+
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
-    }
-    document.addEventListener('keydown', onKey)
     const prevOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
+    const restoreTo = document.activeElement as HTMLElement | null
+
+    const visibleFocusables = () =>
+      Array.from(
+        panelRef.current?.querySelectorAll<HTMLElement>(FOCUSABLE) ?? [],
+      ).filter((el) => el.offsetParent !== null)
+
+    // Move focus into the sheet (unless a child autofocused, e.g. the title).
+    const panel = panelRef.current
+    if (panel && !panel.contains(document.activeElement)) {
+      ;(visibleFocusables()[0] ?? panel).focus()
+    }
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose()
+        return
+      }
+      if (e.key !== 'Tab') return
+      const items = visibleFocusables()
+      if (items.length === 0) {
+        e.preventDefault()
+        return
+      }
+      const first = items[0]
+      const last = items[items.length - 1]
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault()
+        last.focus()
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault()
+        first.focus()
+      }
+    }
+
+    document.addEventListener('keydown', onKey)
     return () => {
       document.removeEventListener('keydown', onKey)
       document.body.style.overflow = prevOverflow
+      restoreTo?.focus?.()
     }
   }, [onClose])
 
@@ -39,7 +77,11 @@ export function Sheet({ title, onClose, children, footer, headerAction }: SheetP
         onClick={onClose}
         className="absolute inset-0 bg-black/40 anim-fade-in"
       />
-      <div className="anim-sheet-up relative mx-auto flex max-h-[92vh] w-full max-w-md flex-col rounded-t-3xl border-x-[3px] border-t-[3px] border-ink bg-surface">
+      <div
+        ref={panelRef}
+        tabIndex={-1}
+        className="anim-sheet-up relative mx-auto flex max-h-[92vh] w-full max-w-md flex-col rounded-t-3xl border-x-[3px] border-t-[3px] border-ink bg-surface outline-none"
+      >
         <header className="flex items-center gap-2 px-5 pb-3 pt-3">
           <span className="absolute left-1/2 top-2 mx-auto h-1.5 w-10 -translate-x-1/2 rounded-full bg-ink" />
           <h2 className="mt-2 flex-1 font-display text-lg font-bold text-ink">

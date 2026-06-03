@@ -3,6 +3,7 @@ import { useNow } from '../hooks/useNow'
 import { useCategories } from '../hooks/useCategories'
 import { useEntries } from '../hooks/useEntries'
 import { useDueReminders } from '../hooks/useDueReminders'
+import { useEntryThumbnails } from '../hooks/useEntryThumbnails'
 import { visibleCategories } from '../lib/categories'
 import { setReminderDone } from '../db/repo'
 import { DueStrip } from './DueStrip'
@@ -35,6 +36,7 @@ export function LedgerScreen() {
 
   const entries = useEntries({ search, categoryId })
   const due = useDueReminders(now)
+  const thumbnails = useEntryThumbnails()
 
   const categoriesById = useMemo(() => {
     const map = new Map<string, Category>()
@@ -113,6 +115,7 @@ export function LedgerScreen() {
                 key={entry.id}
                 entry={entry}
                 category={categoriesById.get(entry.categoryId)}
+                thumb={thumbnails.get(entry.id)}
                 now={now}
                 onOpen={(e) => setView({ kind: 'detail', entry: e })}
               />

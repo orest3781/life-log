@@ -27,6 +27,8 @@ export interface Photo {
   id: string
   entryId: string
   blob: Blob
+  /** Small (~256px) thumbnail for list rows; absent on photos saved pre-v2. */
+  thumb?: Blob
   width: number
   height: number
   createdAt: number

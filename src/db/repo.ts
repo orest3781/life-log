@@ -1,6 +1,6 @@
 import { db } from './db'
 import type { Category, Entry, Photo } from '../types'
-import { processImage } from '../lib/image'
+import { makeThumbnail, processImage } from '../lib/image'
 
 // ---- Entries -------------------------------------------------------------
 
@@ -56,6 +56,18 @@ export async function deleteEntry(id: string): Promise<void> {
 
 export function getEntry(id: string): Promise<Entry | undefined> {
   return db.entries.get(id)
+}
+
+// Re-insert an entry and its photos exactly as they were — backs the "Undo"
+// on delete. Same ids, so it's a faithful restore.
+export async function restoreEntry(
+  entry: Entry,
+  photos: Photo[],
+): Promise<void> {
+  await db.transaction('rw', db.entries, db.photos, async () => {
+    await db.entries.put(entry)
+    if (photos.length) await db.photos.bulkPut(photos)
+  })
 }
 
 // Mark a reminder as handled (clears it from the DUE strip) or restore it.
@@ -134,11 +146,13 @@ export async function addPhotoFromFile(
   file: Blob,
 ): Promise<string> {
   const { blob, width, height } = await processImage(file)
+  const thumb = await makeThumbnail(blob)
   const id = crypto.randomUUID()
   const photo: Photo = {
     id,
     entryId,
     blob,
+    thumb,
     width,
     height,
     createdAt: Date.now(),

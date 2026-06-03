@@ -10,14 +10,20 @@ export interface ProcessedImage {
 
 const MAX_DIM = 1600
 const QUALITY = 0.82
+const THUMB_DIM = 256
+const THUMB_QUALITY = 0.7
 
-export async function processImage(file: Blob): Promise<ProcessedImage> {
+export async function processImage(
+  file: Blob,
+  maxDim: number = MAX_DIM,
+  quality: number = QUALITY,
+): Promise<ProcessedImage> {
   // `from-image` honours EXIF orientation so portrait phone photos (which carry
   // a rotation flag rather than rotated pixels) aren't stored sideways.
   const bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' })
   const { width: sw, height: sh } = bitmap
 
-  const scale = Math.min(1, MAX_DIM / Math.max(sw, sh))
+  const scale = Math.min(1, maxDim / Math.max(sw, sh))
   const width = Math.round(sw * scale)
   const height = Math.round(sh * scale)
 
@@ -34,8 +40,14 @@ export async function processImage(file: Blob): Promise<ProcessedImage> {
   bitmap.close()
 
   const blob = await new Promise<Blob | null>((resolve) =>
-    canvas.toBlob(resolve, 'image/jpeg', QUALITY),
+    canvas.toBlob(resolve, 'image/jpeg', quality),
   )
 
   return { blob: blob ?? file, width, height }
+}
+
+// A small thumbnail for list rows, generated from an already-downscaled blob.
+export async function makeThumbnail(source: Blob): Promise<Blob> {
+  const { blob } = await processImage(source, THUMB_DIM, THUMB_QUALITY)
+  return blob
 }

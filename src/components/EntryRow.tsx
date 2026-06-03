@@ -1,21 +1,21 @@
 import { formatAbsolute, formatElapsed } from '../lib/elapsed'
-import { usePhotos } from '../hooks/usePhotos'
 import { CategoryChip } from './CategoryChip'
 import { BellIcon } from './icons'
+import type { EntryThumb } from '../hooks/useEntryThumbnails'
 import type { Category, Entry } from '../types'
 
 interface EntryRowProps {
   entry: Entry
   category?: Category
+  thumb?: EntryThumb
   now: number
   onOpen: (entry: Entry) => void
 }
 
 // One ledger card. Elapsed time is the dominant element (display type); the
-// absolute date and category sit quietly around it. Chunky ink outline + hard
-// shadow, with a tactile press.
-export function EntryRow({ entry, category, now, onOpen }: EntryRowProps) {
-  const photos = usePhotos(entry.id)
+// absolute date and category sit quietly around it. The thumbnail comes from a
+// single shared query (see useEntryThumbnails), not a per-row subscription.
+export function EntryRow({ entry, category, thumb, now, onOpen }: EntryRowProps) {
   const hasDueReminder =
     entry.remindAt !== undefined &&
     entry.remindAt <= now &&
@@ -46,16 +46,16 @@ export function EntryRow({ entry, category, now, onOpen }: EntryRowProps) {
           </div>
         </div>
 
-        {photos.length > 0 && (
+        {thumb && (
           <div className="relative size-14 shrink-0">
             <img
-              src={photos[0].url}
+              src={thumb.url}
               alt=""
               className="size-14 rounded-xl border-2 border-ink object-cover"
             />
-            {photos.length > 1 && (
+            {thumb.count > 1 && (
               <span className="absolute -bottom-1.5 -right-1.5 grid h-5 min-w-5 place-items-center rounded-full border-2 border-ink bg-ink px-1 text-[11px] font-semibold text-paper">
-                +{photos.length - 1}
+                +{thumb.count - 1}
               </span>
             )}
           </div>

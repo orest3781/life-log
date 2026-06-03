@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { addDays, addMonths, addWeeks, addYears } from 'date-fns'
 import { Sheet } from './Sheet'
+import { useToast } from './Toast'
 import { ImageIcon, TrashIcon } from './icons'
 import { usePhotos } from '../hooks/usePhotos'
 import { sortForPicker } from '../lib/categories'
@@ -43,6 +44,7 @@ const REMINDER_PRESETS: Array<{ label: string; add: (d: number) => Date }> = [
 // tap a category, Save. Everything else (photos, note, dates, reminder) is an
 // optional tap that stays out of the way.
 export function LogSheet({ mode, entry, categories, onClose }: LogSheetProps) {
+  const toast = useToast()
   const [title, setTitle] = useState(entry?.title ?? '')
   const [categoryId, setCategoryId] = useState<string | null>(
     entry?.categoryId ?? null,
@@ -118,6 +120,14 @@ export function LogSheet({ mode, entry, categories, onClose }: LogSheetProps) {
         ...newPhotos.map((p) => addPhotoFromFile(id, p.file)),
       ])
       onClose()
+    } catch (err) {
+      // Most likely a storage-quota failure while saving photos.
+      toast.show(
+        err instanceof Error && /quota/i.test(err.message)
+          ? "Couldn't save — device storage is full."
+          : "Couldn't save that entry. Please try again.",
+        { tone: 'error' },
+      )
     } finally {
       setSaving(false)
     }
