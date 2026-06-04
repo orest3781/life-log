@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../db/db'
+import type { Photo } from '../types'
 
 export interface EntryThumb {
   url: string
@@ -16,12 +17,8 @@ export function useEntryThumbnails(): Map<string, EntryThumb> {
   const [map, setMap] = useState<Map<string, EntryThumb>>(new Map())
 
   useEffect(() => {
-    if (!photos || photos.length === 0) {
-      setMap(new Map())
-      return
-    }
-    const byEntry = new Map<string, typeof photos>()
-    for (const p of photos) {
+    const byEntry = new Map<string, Photo[]>()
+    for (const p of photos ?? []) {
       const list = byEntry.get(p.entryId) ?? []
       list.push(p)
       byEntry.set(p.entryId, list)
@@ -36,6 +33,9 @@ export function useEntryThumbnails(): Map<string, EntryThumb> {
       urls.push(url)
       next.set(entryId, { url, count: list.length })
     }
+    // Object URLs are browser resources we must create here and revoke on
+    // cleanup, then hand to render via state — a legitimate effect setState.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMap(next)
     return () => urls.forEach((u) => URL.revokeObjectURL(u))
   }, [photos])

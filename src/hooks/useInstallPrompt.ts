@@ -42,7 +42,11 @@ export interface InstallPromptState {
 // remembers a dismissal so we never nag.
 export function useInstallPrompt(): InstallPromptState {
   const [deferred, setDeferred] = useState<BeforeInstallPromptEvent | null>(null)
-  const [showIOSHint, setShowIOSHint] = useState(false)
+  // iOS gets no beforeinstallprompt, so decide the manual-hint up front. Skip it
+  // when already launched standalone (nothing left to install).
+  const [showIOSHint, setShowIOSHint] = useState(
+    () => !detectStandalone() && detectIOSSafari(),
+  )
   const [dismissed, setDismissed] = useState(
     () => localStorage.getItem(DISMISS_KEY) === '1',
   )
@@ -61,9 +65,6 @@ export function useInstallPrompt(): InstallPromptState {
 
     window.addEventListener('beforeinstallprompt', onBeforeInstall)
     window.addEventListener('appinstalled', onInstalled)
-
-    // iOS gets no beforeinstallprompt — decide up front whether to hint.
-    if (detectIOSSafari()) setShowIOSHint(true)
 
     return () => {
       window.removeEventListener('beforeinstallprompt', onBeforeInstall)

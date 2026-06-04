@@ -16,10 +16,7 @@ export function visibleCategories(categories: Category[]): Category[] {
  * often you've used them; categories you've never used fall back to their
  * manual order. Archived categories are excluded.
  */
-export function sortForPicker(
-  categories: Category[],
-  _now: number = Date.now(),
-): Category[] {
+export function sortForPicker(categories: Category[]): Category[] {
   return categories
     .filter((c) => !c.archived)
     .sort((a, b) => {

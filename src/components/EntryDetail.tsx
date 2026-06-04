@@ -4,7 +4,7 @@ import { Sheet } from './Sheet'
 import { CategoryChip } from './CategoryChip'
 import { PencilIcon, RotateIcon, TrashIcon } from './icons'
 import { usePhotos } from '../hooks/usePhotos'
-import { useToast } from './Toast'
+import { useToast } from './toast-context'
 import { formatAbsolute, formatElapsed } from '../lib/elapsed'
 import { describeRepeat } from '../lib/reminders'
 import {

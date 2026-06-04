@@ -1,4 +1,4 @@
-import { useToast } from './Toast'
+import { useToast } from './toast-context'
 import { PlusIcon } from './icons'
 import { logFromTemplate } from '../db/repo'
 import type { Category, Template } from '../types'

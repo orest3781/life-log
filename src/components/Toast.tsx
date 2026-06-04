@@ -1,40 +1,11 @@
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useRef,
-  useState,
-  type ReactNode,
-} from 'react'
-
-interface ToastAction {
-  label: string
-  onAction: () => void
-}
+import { useCallback, useRef, useState, type ReactNode } from 'react'
+import { ToastContext, type ToastAction, type ToastApi } from './toast-context'
 
 interface ToastItem {
   id: string
   message: string
   action?: ToastAction
   tone: 'default' | 'error'
-}
-
-interface ShowOptions {
-  action?: ToastAction
-  durationMs?: number
-  tone?: 'default' | 'error'
-}
-
-interface ToastApi {
-  show: (message: string, opts?: ShowOptions) => void
-}
-
-const ToastContext = createContext<ToastApi | null>(null)
-
-export function useToast(): ToastApi {
-  const ctx = useContext(ToastContext)
-  if (!ctx) throw new Error('useToast must be used within <ToastProvider>')
-  return ctx
 }
 
 // A minimal toast/snackbar stack: transient messages with an optional action
