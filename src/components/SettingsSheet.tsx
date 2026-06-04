@@ -7,9 +7,14 @@ import { useDriveSync } from '../hooks/useDriveSync'
 interface SettingsSheetProps {
   onClose: () => void
   onOpenCategories: () => void
+  onOpenInsights: () => void
 }
 
-export function SettingsSheet({ onClose, onOpenCategories }: SettingsSheetProps) {
+export function SettingsSheet({
+  onClose,
+  onOpenCategories,
+  onOpenInsights,
+}: SettingsSheetProps) {
   const [status, setStatus] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
@@ -49,6 +54,10 @@ export function SettingsSheet({ onClose, onOpenCategories }: SettingsSheetProps)
       <div className="flex flex-col gap-6 py-2">
         <Section title="Categories">
           <Row label="Manage categories" onClick={onOpenCategories} />
+        </Section>
+
+        <Section title="Insights">
+          <Row label="View insights" onClick={onOpenInsights} />
         </Section>
 
         <Section title="Your data">

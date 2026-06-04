@@ -16,6 +16,7 @@ import { SettingsSheet } from './SettingsSheet'
 import { CategoryManager } from './CategoryManager'
 import { InstallBanner } from './InstallBanner'
 import { SummarySheet } from './SummarySheet'
+import { InsightsSheet } from './InsightsSheet'
 import { WaystoneMark } from './WaystoneMark'
 import { ClockIcon, GearIcon, PlusIcon, SearchIcon } from './icons'
 import type { Category, Entry } from '../types'
@@ -27,6 +28,7 @@ type View =
   | { kind: 'detail'; entry: Entry }
   | { kind: 'settings' }
   | { kind: 'summary' }
+  | { kind: 'insights' }
   | { kind: 'categories' }
 
 export function LedgerScreen() {
@@ -201,10 +203,18 @@ export function LedgerScreen() {
           }}
         />
       )}
+      {view.kind === 'insights' && categories && (
+        <InsightsSheet
+          categories={categories}
+          now={now}
+          onClose={() => setView({ kind: 'settings' })}
+        />
+      )}
       {view.kind === 'settings' && (
         <SettingsSheet
           onClose={() => setView({ kind: 'none' })}
           onOpenCategories={() => setView({ kind: 'categories' })}
+          onOpenInsights={() => setView({ kind: 'insights' })}
         />
       )}
       {view.kind === 'categories' && categories && (
