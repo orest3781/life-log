@@ -10,6 +10,7 @@ import { toDateInputValue, fromDateInputValue } from '../lib/elapsed'
 import {
   addEntry,
   addPhotoFromFile,
+  addTemplate,
   removePhoto,
   updateEntry,
 } from '../db/repo'
@@ -103,6 +104,12 @@ export function LogSheet({
     })
   }
 
+  async function handleSaveTemplate() {
+    if (!title.trim() || categoryId === null) return
+    await addTemplate({ title, categoryId })
+    toast.show('Saved as quick-log')
+  }
+
   async function handleSave() {
     if (!canSave || categoryId === null) return
     setSaving(true)
@@ -192,6 +199,15 @@ export function LogSheet({
               )
             })}
           </div>
+          {title.trim() !== '' && categoryId !== null && (
+            <button
+              type="button"
+              onClick={handleSaveTemplate}
+              className="mt-2 text-sm font-medium text-accent"
+            >
+              ＋ Save as quick-log
+            </button>
+          )}
         </div>
 
         {/* Photos */}

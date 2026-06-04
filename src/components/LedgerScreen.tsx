@@ -17,6 +17,9 @@ import { CategoryManager } from './CategoryManager'
 import { InstallBanner } from './InstallBanner'
 import { SummarySheet } from './SummarySheet'
 import { InsightsSheet } from './InsightsSheet'
+import { QuickLogBar } from './QuickLogBar'
+import { TemplatesManager } from './TemplatesManager'
+import { useTemplates } from '../hooks/useTemplates'
 import { WaystoneMark } from './WaystoneMark'
 import { ClockIcon, GearIcon, PlusIcon, SearchIcon } from './icons'
 import type { Category, Entry } from '../types'
@@ -29,6 +32,7 @@ type View =
   | { kind: 'settings' }
   | { kind: 'summary' }
   | { kind: 'insights' }
+  | { kind: 'templates' }
   | { kind: 'categories' }
 
 export function LedgerScreen() {
@@ -42,6 +46,7 @@ export function LedgerScreen() {
   const entries = useEntries({ search, categoryId })
   const due = useDueReminders(now)
   const thumbnails = useEntryThumbnails()
+  const templates = useTemplates()
   const categoryStatus = useCategoryStatus(now)
   const overdueCount = useMemo(
     () => [...categoryStatus.values()].filter((s) => s.overdue).length,
@@ -129,6 +134,10 @@ export function LedgerScreen() {
         />
       )}
 
+      {templates && (
+        <QuickLogBar templates={templates} categoriesById={categoriesById} />
+      )}
+
       {/* Ledger */}
       <main className="flex-1 pb-28 pt-2">
         {loading ? null : entries.length === 0 ? (
@@ -210,11 +219,19 @@ export function LedgerScreen() {
           onClose={() => setView({ kind: 'settings' })}
         />
       )}
+      {view.kind === 'templates' && templates && (
+        <TemplatesManager
+          templates={templates}
+          categoriesById={categoriesById}
+          onClose={() => setView({ kind: 'settings' })}
+        />
+      )}
       {view.kind === 'settings' && (
         <SettingsSheet
           onClose={() => setView({ kind: 'none' })}
           onOpenCategories={() => setView({ kind: 'categories' })}
           onOpenInsights={() => setView({ kind: 'insights' })}
+          onOpenTemplates={() => setView({ kind: 'templates' })}
         />
       )}
       {view.kind === 'categories' && categories && (

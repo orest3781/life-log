@@ -8,12 +8,14 @@ interface SettingsSheetProps {
   onClose: () => void
   onOpenCategories: () => void
   onOpenInsights: () => void
+  onOpenTemplates: () => void
 }
 
 export function SettingsSheet({
   onClose,
   onOpenCategories,
   onOpenInsights,
+  onOpenTemplates,
 }: SettingsSheetProps) {
   const [status, setStatus] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
@@ -54,6 +56,10 @@ export function SettingsSheet({
       <div className="flex flex-col gap-6 py-2">
         <Section title="Categories">
           <Row label="Manage categories" onClick={onOpenCategories} />
+        </Section>
+
+        <Section title="Quick-log">
+          <Row label="Quick-log templates" onClick={onOpenTemplates} />
         </Section>
 
         <Section title="Insights">
