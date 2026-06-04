@@ -2,22 +2,41 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../db/db'
 import type { Entry } from '../types'
 
+export type EntrySort = 'newest' | 'oldest'
+
 export interface EntryFilter {
   search?: string
   categoryId?: string | null
+  sort?: EntrySort
+  /** Only entries at least this many days old (null = no age filter). */
+  olderThanDays?: number | null
 }
 
-// The ledger: entries newest-first, optionally narrowed by category and/or a
-// free-text search across title and note. Data is local and modest, so we
-// filter in memory for simplicity. Returns undefined until first load.
+const DAY = 86_400_000
+
+// The ledger: entries filtered by category, free-text, and age, ordered by
+// occurredAt (createdAt tiebreak). Data is local and modest, so we filter in
+// memory. Returns undefined until first load.
 export function useEntries(filter: EntryFilter): Entry[] | undefined {
   const search = filter.search?.trim().toLowerCase() ?? ''
   const categoryId = filter.categoryId ?? null
+  const sort = filter.sort ?? 'newest'
+  const olderThanDays = filter.olderThanDays ?? null
+
   return useLiveQuery(async () => {
     let arr = await db.entries.toArray()
-    // Newest first, breaking same-day ties by when the entry was written so
-    // order is stable and intuitive (latest-logged on top within a day).
-    arr.sort((a, b) => b.occurredAt - a.occurredAt || b.createdAt - a.createdAt)
+
+    if (olderThanDays !== null) {
+      const cutoff = Date.now() - olderThanDays * DAY
+      arr = arr.filter((e) => e.occurredAt <= cutoff)
+    }
+
+    arr.sort((a, b) =>
+      sort === 'oldest'
+        ? a.occurredAt - b.occurredAt || a.createdAt - b.createdAt
+        : b.occurredAt - a.occurredAt || b.createdAt - a.createdAt,
+    )
+
     if (categoryId) arr = arr.filter((e) => e.categoryId === categoryId)
     if (search) {
       arr = arr.filter(
@@ -27,5 +46,5 @@ export function useEntries(filter: EntryFilter): Entry[] | undefined {
       )
     }
     return arr
-  }, [search, categoryId])
+  }, [search, categoryId, sort, olderThanDays])
 }

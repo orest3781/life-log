@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useNow } from '../hooks/useNow'
 import { useCategories } from '../hooks/useCategories'
-import { useEntries } from '../hooks/useEntries'
+import { useEntries, type EntrySort } from '../hooks/useEntries'
 import { useDueReminders } from '../hooks/useDueReminders'
 import { useEntryThumbnails } from '../hooks/useEntryThumbnails'
 import { useCategoryStatus } from '../hooks/useCategoryStatus'
@@ -41,9 +41,11 @@ export function LedgerScreen() {
   const [search, setSearch] = useState('')
   const [searchOpen, setSearchOpen] = useState(false)
   const [categoryId, setCategoryId] = useState<string | null>(null)
+  const [sort, setSort] = useState<EntrySort>('newest')
+  const [olderThanDays, setOlderThanDays] = useState<number | null>(null)
   const [view, setView] = useState<View>({ kind: 'none' })
 
-  const entries = useEntries({ search, categoryId })
+  const entries = useEntries({ search, categoryId, sort, olderThanDays })
   const due = useDueReminders(now)
   const thumbnails = useEntryThumbnails()
   const templates = useTemplates()
@@ -65,7 +67,8 @@ export function LedgerScreen() {
   )
 
   const loading = categories === undefined || entries === undefined
-  const filtering = search.trim() !== '' || categoryId !== null
+  const filtering =
+    search.trim() !== '' || categoryId !== null || olderThanDays !== null
 
   return (
     <div className="mx-auto flex min-h-full max-w-md flex-col">
@@ -96,7 +99,11 @@ export function LedgerScreen() {
           aria-pressed={searchOpen}
           onClick={() => {
             setSearchOpen((v) => !v)
-            if (searchOpen) setSearch('')
+            if (searchOpen) {
+              setSearch('')
+              setSort('newest')
+              setOlderThanDays(null)
+            }
           }}
           className={`brut-press grid size-10 place-items-center rounded-full border-2 border-ink ${
             searchOpen ? 'bg-accent text-white' : 'bg-surface text-ink'
@@ -123,6 +130,10 @@ export function LedgerScreen() {
         categories={filterCategories}
         activeCategoryId={categoryId}
         onSelectCategory={setCategoryId}
+        sort={sort}
+        onSortChange={setSort}
+        olderThanDays={olderThanDays}
+        onOlderThanChange={setOlderThanDays}
       />
 
       {due && (
