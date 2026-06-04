@@ -9,6 +9,18 @@ export interface Category {
   usageCount: number // bumped each time an entry is logged with it
   lastUsedAt: number | null // ms; for recency in the picker
   archived: boolean
+  // Optional cadence: how often this is "supposed" to happen. When the latest
+  // entry is older than this, the category reads as overdue.
+  expectedInterval?: RepeatRule
+}
+
+// A saved quick-log preset — one tap re-logs it with today's date.
+export interface Template {
+  id: string
+  title: string
+  categoryId: string
+  order: number
+  createdAt: number
 }
 
 // An optional recurrence for a reminder, e.g. { unit: 'month', count: 6 }.

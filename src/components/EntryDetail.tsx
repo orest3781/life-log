@@ -2,12 +2,18 @@ import { useState } from 'react'
 import { format } from 'date-fns'
 import { Sheet } from './Sheet'
 import { CategoryChip } from './CategoryChip'
-import { PencilIcon, TrashIcon } from './icons'
+import { PencilIcon, RotateIcon, TrashIcon } from './icons'
 import { usePhotos } from '../hooks/usePhotos'
 import { useToast } from './Toast'
 import { formatAbsolute, formatElapsed } from '../lib/elapsed'
 import { describeRepeat } from '../lib/reminders'
-import { completeReminder, deleteEntry, getPhotos, restoreEntry } from '../db/repo'
+import {
+  completeReminder,
+  deleteEntry,
+  getPhotos,
+  logAgain,
+  restoreEntry,
+} from '../db/repo'
 import type { Category, Entry } from '../types'
 
 interface EntryDetailProps {
@@ -29,6 +35,13 @@ export function EntryDetail({
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [lightbox, setLightbox] = useState<string | null>(null)
   const toast = useToast()
+
+  async function handleLogAgain() {
+    await logAgain(entry)
+    navigator.vibrate?.(8)
+    onClose()
+    toast.show('Logged again — now')
+  }
 
   async function handleDelete() {
     // Capture the entry + its photo blobs before deleting so Undo can restore
@@ -110,6 +123,14 @@ export function EntryDetail({
             {formatAbsolute(entry.occurredAt, now)}
           </div>
         </div>
+
+        <button
+          type="button"
+          onClick={handleLogAgain}
+          className="brut-press flex w-full items-center justify-center gap-2 rounded-xl border-[2.5px] border-ink bg-accent py-3 font-semibold text-white shadow-[3px_3px_0_var(--color-ink)]"
+        >
+          <RotateIcon width={18} height={18} /> Log again (now)
+        </button>
 
         {photos.length > 0 && (
           <div className="grid grid-cols-3 gap-2">

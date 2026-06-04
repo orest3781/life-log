@@ -7,9 +7,27 @@ import {
   countEntriesForCategory,
   deleteCategory,
   reorderCategories,
+  setCategoryInterval,
   updateCategory,
 } from '../db/repo'
-import type { Category } from '../types'
+import type { Category, RepeatRule } from '../types'
+
+const INTERVAL_OPTIONS: Array<{
+  value: string
+  label: string
+  rule: RepeatRule | null
+}> = [
+  { value: 'none', label: 'No cadence', rule: null },
+  { value: 'week-1', label: 'a week', rule: { unit: 'week', count: 1 } },
+  { value: 'month-1', label: 'a month', rule: { unit: 'month', count: 1 } },
+  { value: 'month-3', label: '3 months', rule: { unit: 'month', count: 3 } },
+  { value: 'month-6', label: '6 months', rule: { unit: 'month', count: 6 } },
+  { value: 'year-1', label: 'a year', rule: { unit: 'year', count: 1 } },
+]
+
+function intervalValue(rule?: RepeatRule): string {
+  return rule ? `${rule.unit}-${rule.count}` : 'none'
+}
 
 const PALETTE = [
   '#6f8fae',
@@ -66,7 +84,8 @@ export function CategoryManager({ categories, onClose }: CategoryManagerProps) {
       <div className="flex flex-col gap-3 py-2">
         <ul className="flex flex-col divide-y divide-line">
           {ordered.map((cat, i) => (
-            <li key={cat.id} className="flex items-center gap-2 py-2">
+            <li key={cat.id} className="flex flex-col gap-1.5 py-2">
+              <div className="flex items-center gap-2">
               <div className="flex flex-col">
                 <button
                   type="button"
@@ -136,6 +155,31 @@ export function CategoryManager({ categories, onClose }: CategoryManagerProps) {
                 >
                   <TrashIcon width={16} height={16} />
                 </button>
+              )}
+              </div>
+
+              {!cat.archived && (
+                <div className="flex items-center gap-2 pl-8 text-xs text-muted">
+                  <span>Overdue after</span>
+                  <select
+                    value={intervalValue(cat.expectedInterval)}
+                    onChange={(e) =>
+                      setCategoryInterval(
+                        cat.id,
+                        INTERVAL_OPTIONS.find((o) => o.value === e.target.value)
+                          ?.rule ?? null,
+                      )
+                    }
+                    aria-label={`Overdue cadence for ${cat.name}`}
+                    className="rounded-lg border-2 border-ink bg-surface px-2 py-1 text-ink outline-none"
+                  >
+                    {INTERVAL_OPTIONS.map((o) => (
+                      <option key={o.value} value={o.value}>
+                        {o.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               )}
             </li>
           ))}

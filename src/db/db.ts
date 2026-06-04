@@ -1,18 +1,26 @@
 import Dexie, { type Table } from 'dexie'
-import type { Category, Entry, Photo } from '../types'
+import type { Category, Entry, Photo, Template } from '../types'
 
 export class LifeLogDB extends Dexie {
   categories!: Table<Category, string>
   entries!: Table<Entry, string>
   photos!: Table<Photo, string>
+  templates!: Table<Template, string>
 
   constructor() {
     super('lifelog')
+    // Only indexed fields are listed; other fields are stored but unindexed.
     this.version(1).stores({
-      // Only indexed fields are listed; other fields are stored but unindexed.
       categories: 'id, order, archived',
       entries: 'id, occurredAt, categoryId, remindAt',
       photos: 'id, entryId',
+    })
+    // v2 adds quick-log templates. Existing tables carry forward unchanged.
+    this.version(2).stores({
+      categories: 'id, order, archived',
+      entries: 'id, occurredAt, categoryId, remindAt',
+      photos: 'id, entryId',
+      templates: 'id, order',
     })
   }
 }

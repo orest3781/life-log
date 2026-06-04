@@ -1,7 +1,7 @@
 import JSZip from 'jszip'
 import { format } from 'date-fns'
 import { db } from '../db/db'
-import type { Category, Entry, Photo } from '../types'
+import type { Category, Entry, Photo, Template } from '../types'
 
 const MANIFEST_NAME = 'lifelog.json'
 const APP_TAG = 'lifelog'
@@ -14,6 +14,7 @@ interface PhotoMeta {
   height: number
   createdAt: number
   path: string
+  thumbPath?: string
   type: string
 }
 
@@ -26,10 +27,11 @@ export interface ImportResult {
 // Build a single .zip containing a JSON manifest plus every photo blob. This
 // is the owned, portable, account-free backup the whole app rests on.
 export async function exportAll(): Promise<Blob> {
-  const [categories, entries, photos] = await Promise.all([
+  const [categories, entries, photos, templates] = await Promise.all([
     db.categories.toArray(),
     db.entries.toArray(),
     db.photos.toArray(),
+    db.templates.toArray(),
   ])
 
   const zip = new JSZip()
@@ -40,6 +42,11 @@ export async function exportAll(): Promise<Blob> {
     photos.map(async (p) => {
       const path = `photos/${p.id}`
       zip.file(path, new Uint8Array(await p.blob.arrayBuffer()))
+      let thumbPath: string | undefined
+      if (p.thumb) {
+        thumbPath = `thumbs/${p.id}`
+        zip.file(thumbPath, new Uint8Array(await p.thumb.arrayBuffer()))
+      }
       photoMeta.push({
         id: p.id,
         entryId: p.entryId,
@@ -47,6 +54,7 @@ export async function exportAll(): Promise<Blob> {
         height: p.height,
         createdAt: p.createdAt,
         path,
+        thumbPath,
         type: p.blob.type || 'image/jpeg',
       })
     }),
@@ -59,6 +67,7 @@ export async function exportAll(): Promise<Blob> {
     categories,
     entries,
     photos: photoMeta,
+    templates,
   }
   zip.file(MANIFEST_NAME, JSON.stringify(manifest, null, 2))
   return zip.generateAsync({ type: 'blob' })
@@ -81,6 +90,7 @@ export async function importAll(file: Blob): Promise<ImportResult> {
     categories?: Category[]
     entries?: Entry[]
     photos?: PhotoMeta[]
+    templates?: Template[]
   }
   try {
     manifest = JSON.parse(await manifestFile.async('string'))
@@ -93,6 +103,7 @@ export async function importAll(file: Blob): Promise<ImportResult> {
 
   const categories = manifest.categories ?? []
   const entries = manifest.entries
+  const templates = manifest.templates ?? []
   const photos: Photo[] = []
   for (const pm of manifest.photos ?? []) {
     const pf = zip.file(pm.path)
@@ -101,21 +112,35 @@ export async function importAll(file: Blob): Promise<ImportResult> {
     // it renders correctly — robust across browser and test environments.
     const buf = await pf.async('arraybuffer')
     const blob = new Blob([buf], { type: pm.type || 'image/jpeg' })
+    let thumb: Blob | undefined
+    if (pm.thumbPath) {
+      const tf = zip.file(pm.thumbPath)
+      if (tf) thumb = new Blob([await tf.async('arraybuffer')], { type: 'image/jpeg' })
+    }
     photos.push({
       id: pm.id,
       entryId: pm.entryId,
       blob,
+      thumb,
       width: pm.width,
       height: pm.height,
       createdAt: pm.createdAt,
     })
   }
 
-  await db.transaction('rw', db.categories, db.entries, db.photos, async () => {
-    if (categories.length) await db.categories.bulkPut(categories)
-    await db.entries.bulkPut(entries)
-    if (photos.length) await db.photos.bulkPut(photos)
-  })
+  await db.transaction(
+    'rw',
+    db.categories,
+    db.entries,
+    db.photos,
+    db.templates,
+    async () => {
+      if (categories.length) await db.categories.bulkPut(categories)
+      await db.entries.bulkPut(entries)
+      if (photos.length) await db.photos.bulkPut(photos)
+      if (templates.length) await db.templates.bulkPut(templates)
+    },
+  )
 
   return {
     categories: categories.length,

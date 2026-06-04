@@ -1,5 +1,5 @@
 import { db } from './db'
-import type { Category, Entry, Photo, RepeatRule } from '../types'
+import type { Category, Entry, Photo, RepeatRule, Template } from '../types'
 import { makeThumbnail, processImage } from '../lib/image'
 import { nextOccurrence } from '../lib/reminders'
 
@@ -90,6 +90,17 @@ export async function restoreEntry(
   })
 }
 
+// "Log it again": create a fresh occurrence of an existing entry, dated now.
+// Reminders/repeat are not carried — this marks a new event, not a schedule.
+export async function logAgain(entry: Entry): Promise<string> {
+  return addEntry({
+    title: entry.title,
+    note: entry.note,
+    categoryId: entry.categoryId,
+    occurredAt: Date.now(),
+  })
+}
+
 // Mark a reminder as handled (clears it from the DUE strip) or restore it.
 export function setReminderDone(id: string, done: boolean): Promise<void> {
   return updateEntry(id, { reminderDoneAt: done ? Date.now() : null })
@@ -157,6 +168,46 @@ export async function deleteCategory(id: string): Promise<boolean> {
   if (inUse > 0) return false
   await db.categories.delete(id)
   return true
+}
+
+// Set (or clear, with null) a category's expected cadence for overdue detection.
+export async function setCategoryInterval(
+  id: string,
+  rule: RepeatRule | null,
+): Promise<void> {
+  await db.categories.update(id, { expectedInterval: rule ?? undefined })
+}
+
+// ---- Templates (quick-log presets) ---------------------------------------
+
+export async function addTemplate(input: {
+  title: string
+  categoryId: string
+}): Promise<string> {
+  const id = crypto.randomUUID()
+  const maxOrder = await db.templates.orderBy('order').last()
+  await db.templates.add({
+    id,
+    title: input.title.trim(),
+    categoryId: input.categoryId,
+    order: (maxOrder?.order ?? -1) + 1,
+    createdAt: Date.now(),
+  })
+  return id
+}
+
+export function deleteTemplate(id: string): Promise<void> {
+  return db.templates.delete(id)
+}
+
+// One-tap log of a title under a category, dated now (templates, summary re-log).
+export function quickLog(title: string, categoryId: string): Promise<string> {
+  return addEntry({ title, categoryId, occurredAt: Date.now() })
+}
+
+// One-tap log from a saved template, dated now.
+export function logFromTemplate(template: Template): Promise<string> {
+  return quickLog(template.title, template.categoryId)
 }
 
 // ---- Photos --------------------------------------------------------------

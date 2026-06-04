@@ -4,6 +4,7 @@ import { useCategories } from '../hooks/useCategories'
 import { useEntries } from '../hooks/useEntries'
 import { useDueReminders } from '../hooks/useDueReminders'
 import { useEntryThumbnails } from '../hooks/useEntryThumbnails'
+import { useCategoryStatus } from '../hooks/useCategoryStatus'
 import { visibleCategories } from '../lib/categories'
 import { completeReminder } from '../db/repo'
 import { DueStrip } from './DueStrip'
@@ -39,6 +40,11 @@ export function LedgerScreen() {
   const entries = useEntries({ search, categoryId })
   const due = useDueReminders(now)
   const thumbnails = useEntryThumbnails()
+  const categoryStatus = useCategoryStatus(now)
+  const overdueCount = useMemo(
+    () => [...categoryStatus.values()].filter((s) => s.overdue).length,
+    [categoryStatus],
+  )
 
   const categoriesById = useMemo(() => {
     const map = new Map<string, Category>()
@@ -64,11 +70,18 @@ export function LedgerScreen() {
         </h1>
         <button
           type="button"
-          aria-label="Last done"
+          aria-label={
+            overdueCount > 0 ? `Last done (${overdueCount} overdue)` : 'Last done'
+          }
           onClick={() => setView({ kind: 'summary' })}
-          className="brut-press grid size-10 place-items-center rounded-full border-2 border-ink bg-surface text-ink"
+          className="brut-press relative grid size-10 place-items-center rounded-full border-2 border-ink bg-surface text-ink"
         >
           <ClockIcon width={20} height={20} />
+          {overdueCount > 0 && (
+            <span className="absolute -right-1 -top-1 grid size-4 place-items-center rounded-full border-2 border-ink bg-danger text-[9px] font-bold text-white">
+              {overdueCount}
+            </span>
+          )}
         </button>
         <button
           type="button"
