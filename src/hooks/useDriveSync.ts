@@ -77,6 +77,9 @@ export function useDriveSync(): UseDriveSync {
     if (!configured || !state.connected || !state.autoBackup) return
 
     if (!hasLiveToken()) {
+      // Reacting to a detected data change with no live token — this is genuine
+      // effect work (it can't be derived during render), so the setState stays.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setStatus('reconnect')
       return
     }

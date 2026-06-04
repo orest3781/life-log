@@ -16,12 +16,14 @@ export function InstallBanner() {
   const [appeared, setAppeared] = useState(false)
 
   useEffect(() => {
-    if (!available) {
-      setAppeared(false)
-      return
-    }
+    if (!available) return
+    // Let the visitor settle in, then gently slide the prompt in. Reset to
+    // hidden on teardown so it re-animates if it ever reappears.
     const t = setTimeout(() => setAppeared(true), APPEAR_DELAY_MS)
-    return () => clearTimeout(t)
+    return () => {
+      clearTimeout(t)
+      setAppeared(false)
+    }
   }, [available])
 
   if (!available || !appeared) return null

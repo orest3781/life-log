@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { addDays, addMonths, addWeeks, addYears } from 'date-fns'
 import { Sheet } from './Sheet'
-import { useToast } from './Toast'
+import { useToast } from './toast-context'
 import { ImageIcon, TrashIcon } from './icons'
 import { usePhotos } from '../hooks/usePhotos'
 import { sortForPicker } from '../lib/categories'
@@ -60,8 +60,10 @@ export function LogSheet({
     entry?.categoryId ?? defaultCategoryId ?? null,
   )
   const [occurredAt, setOccurredAt] = useState<number>(
-    entry?.occurredAt ?? Date.now(),
+    () => entry?.occurredAt ?? Date.now(),
   )
+  // "Today" boundary for the date inputs, captured once at mount.
+  const [todayInput] = useState(() => toDateInputValue(Date.now()))
   const [note, setNote] = useState(entry?.note ?? '')
   const [showNote, setShowNote] = useState(Boolean(entry?.note))
   const [remindAt, setRemindAt] = useState<number | null>(
@@ -255,7 +257,7 @@ export function LogSheet({
           <input
             type="date"
             value={toDateInputValue(occurredAt)}
-            max={toDateInputValue(Date.now())}
+            max={todayInput}
             onChange={(e) =>
               e.target.value && setOccurredAt(fromDateInputValue(e.target.value))
             }
@@ -314,7 +316,7 @@ export function LogSheet({
                 <input
                   type="date"
                   value={toDateInputValue(remindAt)}
-                  min={toDateInputValue(Date.now())}
+                  min={todayInput}
                   onChange={(e) =>
                     e.target.value &&
                     setRemindAt(fromDateInputValue(e.target.value))

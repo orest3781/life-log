@@ -16,11 +16,13 @@ export function usePhotos(entryId: string | null): PhotoWithUrl[] {
 
   const [withUrls, setWithUrls] = useState<PhotoWithUrl[]>([])
   useEffect(() => {
-    if (!photos || photos.length === 0) {
-      setWithUrls([])
-      return
-    }
-    const mapped = photos.map((p) => ({ ...p, url: URL.createObjectURL(p.blob) }))
+    const mapped = (photos ?? []).map((p) => ({
+      ...p,
+      url: URL.createObjectURL(p.blob),
+    }))
+    // Object URLs are browser resources we must create here and revoke on
+    // cleanup, then hand to render via state — a legitimate effect setState.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setWithUrls(mapped)
     return () => mapped.forEach((m) => URL.revokeObjectURL(m.url))
   }, [photos])
