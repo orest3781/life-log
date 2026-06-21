@@ -19,8 +19,10 @@ import { SummarySheet } from './SummarySheet'
 import { InsightsSheet } from './InsightsSheet'
 import { QuickLogBar } from './QuickLogBar'
 import { TemplatesManager } from './TemplatesManager'
+import { LedgerSkeleton } from './LedgerSkeleton'
 import { useTemplates } from '../hooks/useTemplates'
 import { WaystoneMark } from './WaystoneMark'
+import { haptic } from '../lib/haptics'
 import { ClockIcon, GearIcon, PlusIcon, SearchIcon } from './icons'
 import type { Category, Entry } from '../types'
 
@@ -74,7 +76,7 @@ export function LedgerScreen() {
     <div className="mx-auto flex min-h-full max-w-md flex-col">
       {/* Header */}
       <header className="sticky top-0 z-20 flex items-center gap-2 border-b-2 border-ink bg-paper px-5 py-3">
-        <h1 className="flex flex-1 items-center gap-2 font-display text-2xl font-bold tracking-tight text-ink">
+        <h1 className="flex flex-1 items-center gap-2 t-title text-ink">
           <WaystoneMark size={26} />
           Waystone
         </h1>
@@ -84,11 +86,13 @@ export function LedgerScreen() {
             overdueCount > 0 ? `Last done (${overdueCount} overdue)` : 'Last done'
           }
           onClick={() => setView({ kind: 'summary' })}
-          className="brut-press relative grid size-10 place-items-center rounded-full border-2 border-ink bg-surface text-ink"
+          className={`brut-press tap-ring relative grid size-11 place-items-center rounded-full border-2 border-ink ${
+            overdueCount > 0 ? 'bg-danger-soft text-danger' : 'bg-surface text-ink'
+          }`}
         >
           <ClockIcon width={20} height={20} />
           {overdueCount > 0 && (
-            <span className="absolute -right-1 -top-1 grid size-4 place-items-center rounded-full border-2 border-ink bg-danger text-[9px] font-bold text-white">
+            <span className="absolute -right-1 -top-1 grid size-5 place-items-center rounded-full border-2 border-ink bg-danger text-[10px] font-bold text-on-danger">
               {overdueCount}
             </span>
           )}
@@ -105,8 +109,8 @@ export function LedgerScreen() {
               setOlderThanDays(null)
             }
           }}
-          className={`brut-press grid size-10 place-items-center rounded-full border-2 border-ink ${
-            searchOpen ? 'bg-accent text-white' : 'bg-surface text-ink'
+          className={`brut-press tap-ring grid size-11 place-items-center rounded-full border-2 border-ink ${
+            searchOpen ? 'bg-accent text-on-accent' : 'bg-surface text-ink'
           }`}
         >
           <SearchIcon width={20} height={20} />
@@ -115,7 +119,7 @@ export function LedgerScreen() {
           type="button"
           aria-label="Settings"
           onClick={() => setView({ kind: 'settings' })}
-          className="brut-press grid size-10 place-items-center rounded-full border-2 border-ink bg-surface text-ink"
+          className="brut-press tap-ring grid size-11 place-items-center rounded-full border-2 border-ink bg-surface text-ink"
         >
           <GearIcon width={20} height={20} />
         </button>
@@ -151,17 +155,20 @@ export function LedgerScreen() {
 
       {/* Ledger */}
       <main className="flex-1 pb-28 pt-2">
-        {loading ? null : entries.length === 0 ? (
+        {loading ? (
+          <LedgerSkeleton />
+        ) : entries.length === 0 ? (
           <EmptyState filtering={filtering} />
         ) : (
           <ul className="flex flex-col gap-3 px-5">
-            {entries.map((entry) => (
+            {entries.map((entry, i) => (
               <EntryRow
                 key={entry.id}
                 entry={entry}
                 category={categoriesById.get(entry.categoryId)}
                 thumb={thumbnails.get(entry.id)}
                 now={now}
+                animDelayMs={Math.min(i, 6) * 30}
                 onOpen={(e) => setView({ kind: 'detail', entry: e })}
               />
             ))}
@@ -178,8 +185,11 @@ export function LedgerScreen() {
           <button
             type="button"
             aria-label="Log something"
-            onClick={() => setView({ kind: 'create' })}
-            className="brut-press pointer-events-auto grid size-16 place-items-center rounded-full border-[3px] border-ink bg-accent text-white shadow-[5px_5px_0_var(--color-ink)]"
+            onClick={() => {
+              haptic.select()
+              setView({ kind: 'create' })
+            }}
+            className="brut-press tap-ring pointer-events-auto grid size-16 place-items-center rounded-full border-[3px] border-ink bg-accent text-on-accent shadow-[5px_5px_0_var(--color-ink)]"
           >
             <PlusIcon width={28} height={28} />
           </button>

@@ -3,6 +3,7 @@ import { addDays, addMonths, addWeeks, addYears } from 'date-fns'
 import { Sheet } from './Sheet'
 import { useToast } from './Toast'
 import { ImageIcon, TrashIcon } from './icons'
+import { haptic } from '../lib/haptics'
 import { usePhotos } from '../hooks/usePhotos'
 import { sortForPicker } from '../lib/categories'
 import { REPEAT_PRESETS, sameRule } from '../lib/reminders'
@@ -107,6 +108,7 @@ export function LogSheet({
   async function handleSaveTemplate() {
     if (!title.trim() || categoryId === null) return
     await addTemplate({ title, categoryId })
+    haptic.tap()
     toast.show('Saved as quick-log')
   }
 
@@ -138,7 +140,7 @@ export function LogSheet({
         ...[...removedIds].map((pid) => removePhoto(pid)),
         ...newPhotos.map((p) => addPhotoFromFile(id, p.file)),
       ])
-      navigator.vibrate?.(8) // subtle confirmation tap on supporting devices
+      haptic.tap() // subtle confirmation tap on supporting devices
       onClose()
     } catch (err) {
       // Most likely a storage-quota failure while saving photos.
@@ -162,7 +164,7 @@ export function LogSheet({
           type="button"
           disabled={!canSave}
           onClick={handleSave}
-          className="brut-press w-full rounded-xl border-[2.5px] border-ink bg-accent py-3 text-center font-semibold text-white shadow-[3px_3px_0_var(--color-ink)] disabled:opacity-40"
+          className="brut-press tap-ring w-full rounded-xl border-[2.5px] border-ink bg-accent py-3 text-center font-semibold text-on-accent shadow-[3px_3px_0_var(--color-ink)] disabled:opacity-40"
         >
           {saving ? 'Saving…' : 'Save'}
         </button>
@@ -175,7 +177,7 @@ export function LogSheet({
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="What happened?"
-          className="w-full border-b-2 border-ink bg-transparent pb-2 font-display text-lg font-medium text-ink outline-none placeholder:font-normal placeholder:text-faint"
+          className="tap-ring w-full border-b-2 border-ink bg-transparent pb-2 font-display text-lg font-medium text-ink outline-none placeholder:font-normal placeholder:text-faint"
         />
 
         {/* Category picker */}
@@ -188,8 +190,11 @@ export function LogSheet({
                 <button
                   key={c.id}
                   type="button"
-                  onClick={() => setCategoryId(c.id)}
-                  className="rounded-full border-2 border-ink px-3 py-1.5 text-sm font-semibold text-ink transition-colors"
+                  onClick={() => {
+                    haptic.select()
+                    setCategoryId(c.id)
+                  }}
+                  className="tap-ring inline-flex min-h-11 items-center rounded-full border-2 border-ink px-3.5 text-sm font-semibold text-ink transition-colors"
                   style={{
                     backgroundColor: active ? c.color : c.color + '33',
                   }}
@@ -203,7 +208,7 @@ export function LogSheet({
             <button
               type="button"
               onClick={handleSaveTemplate}
-              className="mt-2 text-sm font-medium text-accent"
+              className="tap-ring mt-2 rounded-lg text-sm font-medium text-accent"
             >
               ＋ Save as quick-log
             </button>
@@ -233,7 +238,7 @@ export function LogSheet({
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="grid size-16 place-items-center rounded-xl border-2 border-dashed border-ink text-ink"
+              className="tap-ring grid size-16 place-items-center rounded-xl border-2 border-dashed border-ink text-ink"
               aria-label="Add photo"
             >
               <ImageIcon width={22} height={22} />
@@ -259,7 +264,7 @@ export function LogSheet({
             onChange={(e) =>
               e.target.value && setOccurredAt(fromDateInputValue(e.target.value))
             }
-            className="rounded-xl border border-line bg-surface px-3 py-2 text-[15px] text-ink outline-none focus:border-accent"
+            className="tap-ring rounded-xl border border-line bg-surface px-3 py-2 text-[15px] text-ink outline-none focus:border-accent"
           />
         </div>
 
@@ -272,14 +277,14 @@ export function LogSheet({
               onChange={(e) => setNote(e.target.value)}
               rows={3}
               placeholder="Any details…"
-              className="w-full resize-none rounded-xl border-2 border-ink bg-surface px-3 py-2 text-[15px] text-ink outline-none placeholder:text-faint"
+              className="tap-ring w-full resize-none rounded-xl border-2 border-ink bg-surface px-3 py-2 text-[15px] text-ink outline-none placeholder:text-faint"
             />
           </div>
         ) : (
           <button
             type="button"
             onClick={() => setShowNote(true)}
-            className="self-start text-sm font-medium text-accent"
+            className="tap-ring self-start rounded-lg text-sm font-medium text-accent"
           >
             + Add note
           </button>
@@ -295,7 +300,7 @@ export function LogSheet({
                   key={preset.label}
                   type="button"
                   onClick={() => setRemindAt(preset.add(Date.now()).getTime())}
-                  className="rounded-full border-2 border-ink bg-surface px-3 py-1.5 text-sm font-medium text-ink"
+                  className="tap-ring rounded-full border-2 border-ink bg-surface px-3 py-1.5 text-sm font-medium text-ink"
                 >
                   {preset.label}
                 </button>
@@ -303,7 +308,7 @@ export function LogSheet({
               <button
                 type="button"
                 onClick={() => setRemindAt(addWeeks(Date.now(), 1).getTime())}
-                className="rounded-full border-2 border-ink bg-accent-soft px-3 py-1.5 text-sm font-medium text-accent"
+                className="tap-ring rounded-full border-2 border-ink bg-accent-soft px-3 py-1.5 text-sm font-medium text-accent"
               >
                 Pick date…
               </button>
@@ -319,7 +324,7 @@ export function LogSheet({
                     e.target.value &&
                     setRemindAt(fromDateInputValue(e.target.value))
                   }
-                  className="rounded-xl border-2 border-ink bg-surface px-3 py-2 text-[15px] text-ink outline-none"
+                  className="tap-ring rounded-xl border-2 border-ink bg-surface px-3 py-2 text-[15px] text-ink outline-none"
                 />
                 <button
                   type="button"
@@ -327,7 +332,7 @@ export function LogSheet({
                     setRemindAt(null)
                     setRepeat(null)
                   }}
-                  className="text-sm font-medium text-danger"
+                  className="tap-ring rounded-lg px-1 text-sm font-medium text-danger"
                 >
                   Clear
                 </button>
@@ -340,7 +345,7 @@ export function LogSheet({
                       key={preset.label}
                       type="button"
                       onClick={() => setRepeat(preset.rule)}
-                      className={`rounded-full border-2 border-ink px-3 py-1.5 text-sm font-medium ${
+                      className={`tap-ring rounded-full border-2 border-ink px-3 py-1.5 text-sm font-medium ${
                         active ? 'bg-ink text-paper' : 'bg-surface text-ink'
                       }`}
                     >
@@ -373,7 +378,7 @@ function PhotoThumb({ url, onRemove }: { url: string; onRemove: () => void }) {
         type="button"
         onClick={onRemove}
         aria-label="Remove photo"
-        className="absolute -right-1.5 -top-1.5 grid size-6 place-items-center rounded-full bg-ink text-paper shadow"
+        className="tap-ring absolute -right-1.5 -top-1.5 grid size-6 place-items-center rounded-full bg-ink text-paper shadow"
       >
         <TrashIcon width={13} height={13} />
       </button>

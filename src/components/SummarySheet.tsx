@@ -1,6 +1,9 @@
+import { useState } from 'react'
 import { Sheet } from './Sheet'
 import { CategoryChip } from './CategoryChip'
+import { StatusPill } from './StatusPill'
 import { useToast } from './Toast'
+import { haptic } from '../lib/haptics'
 import { RotateIcon } from './icons'
 import { useCategoryStatus } from '../hooks/useCategoryStatus'
 import { visibleCategories } from '../lib/categories'
@@ -21,12 +24,23 @@ interface SummarySheetProps {
 export function SummarySheet({ categories, now, onClose, onPick }: SummarySheetProps) {
   const status = useCategoryStatus(now)
   const toast = useToast()
+  const [busy, setBusy] = useState<Set<string>>(new Set())
   const cats = visibleCategories(categories)
 
   async function handleLogAgain(category: Category, title: string) {
-    await quickLog(title, category.id)
-    navigator.vibrate?.(8)
-    toast.show(`Logged “${title}” — now`)
+    if (busy.has(category.id)) return
+    setBusy((prev) => new Set(prev).add(category.id))
+    try {
+      await quickLog(title, category.id)
+      haptic.tap()
+      toast.show(`Logged “${title}” — now`)
+    } finally {
+      setBusy((prev) => {
+        const next = new Set(prev)
+        next.delete(category.id)
+        return next
+      })
+    }
   }
 
   return (
@@ -41,7 +55,7 @@ export function SummarySheet({ categories, now, onClose, onPick }: SummarySheetP
               <button
                 type="button"
                 onClick={() => onPick(c.id)}
-                className="brut-sm brut-press flex min-w-0 flex-1 items-center gap-3 bg-surface px-4 py-3 text-left"
+                className="brut-card brut-press tap-ring flex min-w-0 flex-1 items-center gap-3 bg-surface px-4 py-3 text-left"
               >
                 <div className="min-w-0 flex-1">
                   <CategoryChip category={c} />
@@ -64,8 +78,8 @@ export function SummarySheet({ categories, now, onClose, onPick }: SummarySheetP
                     {last === null ? 'never' : formatElapsed(last, now)}
                   </div>
                   {s?.overdue && (
-                    <div className="text-[11px] font-bold uppercase tracking-wide text-danger">
-                      overdue
+                    <div className="mt-1 flex justify-end">
+                      <StatusPill kind="overdue" />
                     </div>
                   )}
                 </div>
@@ -75,8 +89,10 @@ export function SummarySheet({ categories, now, onClose, onPick }: SummarySheetP
                 <button
                   type="button"
                   onClick={() => handleLogAgain(c, title)}
+                  disabled={busy.has(c.id)}
+                  aria-busy={busy.has(c.id)}
                   aria-label={`Log "${title}" again`}
-                  className="brut-press grid size-11 shrink-0 place-items-center rounded-full border-2 border-ink bg-accent text-white"
+                  className="brut-press tap-ring grid size-11 shrink-0 place-items-center rounded-full border-2 border-ink bg-accent text-on-accent disabled:opacity-60"
                 >
                   <RotateIcon width={18} height={18} />
                 </button>

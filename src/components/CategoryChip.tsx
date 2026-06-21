@@ -11,7 +11,7 @@ export function CategoryChip({
 }) {
   return (
     <span
-      className={`inline-flex items-center gap-1 rounded-full border-2 border-ink px-2 py-0.5 text-xs font-semibold text-ink ${className}`}
+      className={`inline-flex items-center gap-1 rounded-full border-2 border-ink px-2.5 py-1 text-xs font-semibold text-ink ${className}`}
       style={{ backgroundColor: category.color + '40' }}
     >
       <span aria-hidden>{category.emoji}</span>

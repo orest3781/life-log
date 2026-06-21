@@ -32,14 +32,14 @@ export function UpdatePrompt() {
           <button
             type="button"
             onClick={() => setNeedRefresh(false)}
-            className="text-sm font-medium text-muted"
+            className="tap-ring rounded-lg px-1 text-sm font-medium text-muted"
           >
             Later
           </button>
           <button
             type="button"
             onClick={() => updateRef.current?.(true)}
-            className="brut-press rounded-lg border-2 border-ink bg-accent px-3 py-1.5 text-sm font-semibold text-white shadow-[2px_2px_0_var(--color-ink)]"
+            className="brut-press tap-ring rounded-lg border-2 border-ink bg-accent px-3 py-1.5 text-sm font-semibold text-on-accent shadow-[2px_2px_0_var(--color-ink)]"
           >
             Reload
           </button>

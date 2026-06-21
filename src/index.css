@@ -1,18 +1,23 @@
 @import 'tailwindcss';
 
 @theme {
-  /* Bone & Teal — muted neo-brutalist palette */
-  --color-paper: #e8e1d3;
-  --color-backdrop: #ddd4c2;
-  --color-surface: #fbf8f1;
-  --color-surface-2: #efe9dc;
-  --color-ink: #2a2622;
-  --color-muted: #6b6052;
-  --color-faint: #a89c86;
-  --color-line: #d8cdb5;
-  --color-accent: #3f7d6e;
-  --color-accent-soft: #d9e6e1;
-  --color-danger: #b5503a;
+  /* Bone & Teal — muted neo-brutalist palette (refresh: deeper ramp, AA contrast) */
+  --color-paper: #e7e0d1;
+  --color-backdrop: #d8cebb;
+  --color-surface: #fcf9f3;
+  --color-surface-2: #efe8da;
+  --color-surface-3: #e3dac8;
+  --color-ink: #241f1a;
+  --color-muted: #5d5346;
+  --color-faint: #7d7160;
+  --color-line: #cdc0a4;
+  --color-accent: #356b5e;
+  --color-accent-strong: #234c43;
+  --color-accent-soft: #d6e4de;
+  --color-on-accent: #ffffff;
+  --color-danger: #a8412c;
+  --color-danger-soft: #f0d9d2;
+  --color-on-danger: #ffffff;
 
   --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI',
     Roboto, Helvetica, Arial, sans-serif;
@@ -20,20 +25,27 @@
 }
 
 /* Dark mode: warm near-black ground, light ink so the brutalist edges and
-   hard shadows still read against the dark. */
+   hard shadows still read against the dark. Muted/faint are brightened so
+   secondary text clears WCAG AA; accent stays bright (filled buttons switch
+   their text to --color-on-accent, an ink tone, to keep AA on the fill). */
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-paper: #1b1916;
-    --color-backdrop: #14120f;
+    --color-paper: #1a1815;
+    --color-backdrop: #131210;
     --color-surface: #262019;
-    --color-surface-2: #312a22;
-    --color-ink: #e9e0cf;
-    --color-muted: #a99e8c;
-    --color-faint: #6f6557;
-    --color-line: #3a352d;
-    --color-accent: #4ea892;
+    --color-surface-2: #322b22;
+    --color-surface-3: #3d352a;
+    --color-ink: #efe7d6;
+    --color-muted: #c2b8a4;
+    --color-faint: #968b78;
+    --color-line: #423b31;
+    --color-accent: #5cbfa6;
+    --color-accent-strong: #7fd4bd;
     --color-accent-soft: #1f3a34;
-    --color-danger: #d4795f;
+    --color-on-accent: #241f1a;
+    --color-danger: #e08a70;
+    --color-danger-soft: #3a2620;
+    --color-on-danger: #241f1a;
   }
 }
 
@@ -69,6 +81,51 @@ body {
   display: none;
 }
 
+/* ---- Typographic scale ---------------------------------------------------
+   Display (Space Grotesk) for numbers/headings, tight tracking; Inter for UI.
+   These map 1:1 onto prior ad-hoc sizes so layout/rendered text is unchanged. */
+.t-elapsed {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  line-height: 1.05;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.t-elapsed-lg {
+  font-family: var(--font-display);
+  font-size: 2.75rem;
+  line-height: 1;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+.t-title {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  line-height: 1.1;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.t-sheet-title {
+  font-family: var(--font-display);
+  font-size: 1.125rem;
+  line-height: 1.2;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.t-eyebrow {
+  font-family: var(--font-display);
+  font-size: 0.6875rem;
+  line-height: 1;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.t-meta {
+  font-size: 0.8125rem;
+  line-height: 1.3;
+  font-weight: 500;
+}
+
 /* ---- Neo-brutalist primitives -------------------------------------------
    Borders and the blur-free offset shadow are ALWAYS ink; color comes from
    fills, never from the lines. */
@@ -84,6 +141,15 @@ body {
   box-shadow: 3px 3px 0 var(--color-ink);
 }
 
+/* A refined card: brut-sm plus a lit top-inset hairline for a touch of depth. */
+.brut-card {
+  border: 2.5px solid var(--color-ink);
+  border-radius: 14px;
+  box-shadow:
+    3px 3px 0 var(--color-ink),
+    inset 0 1px 0 rgb(255 255 255 / 0.35);
+}
+
 /* Tactile press: the element sinks into its own shadow. */
 .brut-press {
   transition:
@@ -94,11 +160,34 @@ body {
   transform: translate(3px, 3px);
   box-shadow: 0 0 0 var(--color-ink);
 }
-.brut-sm.brut-press:active {
+.brut-sm.brut-press:active,
+.brut-card.brut-press:active {
   transform: translate(3px, 3px);
   box-shadow: 0 0 0 var(--color-ink);
 }
 
+@media (prefers-color-scheme: dark) {
+  .brut-card {
+    box-shadow:
+      3px 3px 0 var(--color-ink),
+      inset 0 1px 0 rgb(255 255 255 / 0.06);
+  }
+}
+
+/* ---- Accessibility helpers ---------------------------------------------- */
+/* Keyboard focus ring (never shows on touch/mouse press). Outline composes
+   cleanly with the brutalist hard shadow. */
+.tap-ring:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 2px;
+}
+/* Minimum comfortable touch target (~44px) without forcing a visual size. */
+.tap {
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+}
+
+/* ---- Motion -------------------------------------------------------------- */
 @keyframes fade-in {
   from {
     opacity: 0;
@@ -128,6 +217,62 @@ body {
   }
 }
 
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes row-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes expand-y {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+    max-height: 0;
+    overflow: hidden;
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    max-height: 40rem;
+    overflow: hidden;
+  }
+}
+
+@keyframes pulse-soft {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 150% 0;
+  }
+  to {
+    background-position: -150% 0;
+  }
+}
+
 .anim-fade-in {
   animation: fade-in 0.18s ease-out;
 }
@@ -137,11 +282,39 @@ body {
 .anim-slide-down {
   animation: slide-down 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
+.anim-scale-in {
+  animation: scale-in 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.anim-row-in {
+  animation: row-in 0.22s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.anim-expand {
+  animation: expand-y 0.26s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.anim-pulse-soft {
+  animation: pulse-soft 1.6s ease-in-out infinite;
+}
+
+.skeleton {
+  background: linear-gradient(
+    100deg,
+    var(--color-surface-2) 30%,
+    var(--color-surface-3) 50%,
+    var(--color-surface-2) 70%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.4s linear infinite;
+}
 
 @media (prefers-reduced-motion: reduce) {
   .anim-fade-in,
   .anim-sheet-up,
-  .anim-slide-down {
+  .anim-slide-down,
+  .anim-scale-in,
+  .anim-row-in,
+  .anim-expand,
+  .anim-pulse-soft,
+  .skeleton {
     animation: none;
   }
   .brut-press {

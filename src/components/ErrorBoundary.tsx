@@ -32,7 +32,7 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, State> {
         <button
           type="button"
           onClick={() => window.location.reload()}
-          className="brut-press rounded-xl border-[2.5px] border-ink bg-accent px-5 py-3 font-semibold text-white shadow-[3px_3px_0_var(--color-ink)]"
+          className="brut-press tap-ring rounded-xl border-[2.5px] border-ink bg-accent px-5 py-3 font-semibold text-on-accent shadow-[3px_3px_0_var(--color-ink)]"
         >
           Reload
         </button>

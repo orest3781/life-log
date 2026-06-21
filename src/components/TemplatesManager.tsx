@@ -1,4 +1,8 @@
+import { useState } from 'react'
 import { Sheet } from './Sheet'
+import { ConfirmDialog } from './ConfirmDialog'
+import { useToast } from './Toast'
+import { haptic } from '../lib/haptics'
 import { TrashIcon } from './icons'
 import { deleteTemplate } from '../db/repo'
 import type { Category, Template } from '../types'
@@ -14,6 +18,17 @@ export function TemplatesManager({
   categoriesById,
   onClose,
 }: TemplatesManagerProps) {
+  const toast = useToast()
+  const [pendingDelete, setPendingDelete] = useState<Template | null>(null)
+
+  async function confirmDelete() {
+    if (!pendingDelete) return
+    await deleteTemplate(pendingDelete.id)
+    haptic.warn()
+    toast.show(`Deleted “${pendingDelete.title}”`)
+    setPendingDelete(null)
+  }
+
   return (
     <Sheet title="Quick-log templates" onClose={onClose}>
       {templates.length === 0 ? (
@@ -36,9 +51,9 @@ export function TemplatesManager({
                 </span>
                 <button
                   type="button"
-                  onClick={() => deleteTemplate(t.id)}
+                  onClick={() => setPendingDelete(t)}
                   aria-label={`Delete ${t.title}`}
-                  className="grid size-8 shrink-0 place-items-center rounded-full text-muted hover:text-danger"
+                  className="tap tap-ring grid shrink-0 place-items-center rounded-full text-muted hover:text-danger"
                 >
                   <TrashIcon width={16} height={16} />
                 </button>
@@ -46,6 +61,17 @@ export function TemplatesManager({
             )
           })}
         </ul>
+      )}
+
+      {pendingDelete && (
+        <ConfirmDialog
+          title={`Delete “${pendingDelete.title}”?`}
+          body="This removes the quick-log preset. Your logged entries are not affected."
+          confirmLabel="Delete"
+          tone="danger"
+          onConfirm={confirmDelete}
+          onCancel={() => setPendingDelete(null)}
+        />
       )}
     </Sheet>
   )

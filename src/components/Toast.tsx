@@ -78,7 +78,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             key={t.id}
             role="status"
             className={`anim-slide-down brut-sm pointer-events-auto flex w-full max-w-md items-center gap-3 px-4 py-2.5 ${
-              t.tone === 'error' ? 'bg-danger text-white' : 'bg-ink text-paper'
+              t.tone === 'error' ? 'bg-danger text-on-danger' : 'bg-ink text-paper'
             }`}
           >
             <span className="flex-1 text-[15px] font-medium">{t.message}</span>
@@ -89,7 +89,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                   t.action!.onAction()
                   dismiss(t.id)
                 }}
-                className="font-semibold text-white underline underline-offset-2"
+                className="tap-ring shrink-0 font-semibold underline underline-offset-2"
               >
                 {t.action.label}
               </button>

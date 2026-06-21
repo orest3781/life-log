@@ -1,5 +1,8 @@
 import { useState } from 'react'
 import { Sheet } from './Sheet'
+import { ConfirmDialog } from './ConfirmDialog'
+import { useToast } from './Toast'
+import { haptic } from '../lib/haptics'
 import { TrashIcon } from './icons'
 import { sortByOrder } from '../lib/categories'
 import {
@@ -49,9 +52,14 @@ interface CategoryManagerProps {
 
 export function CategoryManager({ categories, onClose }: CategoryManagerProps) {
   const ordered = sortByOrder(categories)
+  const toast = useToast()
   const [newName, setNewName] = useState('')
   const [newEmoji, setNewEmoji] = useState('🏷️')
   const [newColor, setNewColor] = useState(PALETTE[0])
+  const [pendingDelete, setPendingDelete] = useState<{
+    cat: Category
+    inUse: number
+  } | null>(null)
 
   async function move(index: number, dir: -1 | 1) {
     const target = index + dir
@@ -65,18 +73,28 @@ export function CategoryManager({ categories, onClose }: CategoryManagerProps) {
     const name = newName.trim()
     if (!name) return
     await addCategory({ name, emoji: newEmoji.trim() || '🏷️', color: newColor })
+    haptic.tap()
     setNewName('')
     setNewEmoji('🏷️')
   }
 
-  async function handleDelete(cat: Category) {
+  async function askDelete(cat: Category) {
     const inUse = await countEntriesForCategory(cat.id)
+    setPendingDelete({ cat, inUse })
+  }
+
+  async function confirmDelete() {
+    if (!pendingDelete) return
+    const { cat, inUse } = pendingDelete
     if (inUse > 0) {
       // In use — archive instead of destroying history.
       await updateCategory(cat.id, { archived: true })
     } else {
       await deleteCategory(cat.id)
     }
+    haptic.warn()
+    toast.show(inUse > 0 ? `Archived “${cat.name}”` : `Deleted “${cat.name}”`)
+    setPendingDelete(null)
   }
 
   return (
@@ -92,7 +110,7 @@ export function CategoryManager({ categories, onClose }: CategoryManagerProps) {
                   onClick={() => move(i, -1)}
                   disabled={i === 0}
                   aria-label="Move up"
-                  className="text-muted disabled:opacity-25"
+                  className="tap-ring grid size-8 place-items-center rounded-md text-muted disabled:opacity-25"
                 >
                   ↑
                 </button>
@@ -101,7 +119,7 @@ export function CategoryManager({ categories, onClose }: CategoryManagerProps) {
                   onClick={() => move(i, 1)}
                   disabled={i === ordered.length - 1}
                   aria-label="Move down"
-                  className="text-muted disabled:opacity-25"
+                  className="tap-ring grid size-8 place-items-center rounded-md text-muted disabled:opacity-25"
                 >
                   ↓
                 </button>
@@ -114,7 +132,7 @@ export function CategoryManager({ categories, onClose }: CategoryManagerProps) {
                   updateCategory(cat.id, { emoji: e.target.value || '🏷️' })
                 }
                 aria-label="Emoji"
-                className="w-9 rounded-lg bg-surface-2 py-1 text-center text-lg outline-none"
+                className="tap-ring w-9 rounded-lg bg-surface-2 py-1 text-center text-lg outline-none"
               />
 
               <input
@@ -125,7 +143,7 @@ export function CategoryManager({ categories, onClose }: CategoryManagerProps) {
                   if (v && v !== cat.name) updateCategory(cat.id, { name: v })
                 }}
                 aria-label="Name"
-                className={`min-w-0 flex-1 rounded-lg bg-transparent px-1 py-1 text-[15px] outline-none focus:bg-surface-2 ${
+                className={`tap-ring min-w-0 flex-1 rounded-lg bg-transparent px-1 py-1 text-[15px] outline-none focus:bg-surface-2 ${
                   cat.archived ? 'text-faint line-through' : 'text-ink'
                 }`}
               />
@@ -135,23 +153,23 @@ export function CategoryManager({ categories, onClose }: CategoryManagerProps) {
                 value={cat.color}
                 onChange={(e) => updateCategory(cat.id, { color: e.target.value })}
                 aria-label="Color"
-                className="size-7 cursor-pointer rounded-full border-0 bg-transparent p-0"
+                className="tap-ring size-7 cursor-pointer rounded-full border-0 bg-transparent p-0"
               />
 
               {cat.archived ? (
                 <button
                   type="button"
                   onClick={() => updateCategory(cat.id, { archived: false })}
-                  className="text-xs font-medium text-accent"
+                  className="tap-ring rounded-lg px-1 text-xs font-medium text-accent"
                 >
                   Restore
                 </button>
               ) : (
                 <button
                   type="button"
-                  onClick={() => handleDelete(cat)}
+                  onClick={() => askDelete(cat)}
                   aria-label={`Remove ${cat.name}`}
-                  className="grid size-8 place-items-center rounded-full text-muted hover:text-danger"
+                  className="tap tap-ring grid place-items-center rounded-full text-muted hover:text-danger"
                 >
                   <TrashIcon width={16} height={16} />
                 </button>
@@ -171,7 +189,7 @@ export function CategoryManager({ categories, onClose }: CategoryManagerProps) {
                       )
                     }
                     aria-label={`Overdue cadence for ${cat.name}`}
-                    className="rounded-lg border-2 border-ink bg-surface px-2 py-1 text-ink outline-none"
+                    className="tap-ring rounded-lg border-2 border-ink bg-surface px-2 py-1 text-ink outline-none"
                   >
                     {INTERVAL_OPTIONS.map((o) => (
                       <option key={o.value} value={o.value}>
@@ -195,7 +213,7 @@ export function CategoryManager({ categories, onClose }: CategoryManagerProps) {
               value={newEmoji}
               onChange={(e) => setNewEmoji(e.target.value)}
               aria-label="New emoji"
-              className="w-10 rounded-lg border-2 border-ink bg-surface py-1.5 text-center text-lg outline-none"
+              className="tap-ring w-10 rounded-lg border-2 border-ink bg-surface py-1.5 text-center text-lg outline-none"
             />
             <input
               value={newName}
@@ -203,13 +221,13 @@ export function CategoryManager({ categories, onClose }: CategoryManagerProps) {
               onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
               placeholder="Name"
               aria-label="New name"
-              className="min-w-0 flex-1 rounded-lg border-2 border-ink bg-surface px-3 py-1.5 text-[15px] text-ink outline-none placeholder:text-faint"
+              className="tap-ring min-w-0 flex-1 rounded-lg border-2 border-ink bg-surface px-3 py-1.5 text-[15px] text-ink outline-none placeholder:text-faint"
             />
             <button
               type="button"
               onClick={handleAdd}
               disabled={!newName.trim()}
-              className="rounded-lg border-2 border-ink bg-accent px-4 py-1.5 text-sm font-semibold text-white disabled:opacity-40"
+              className="tap-ring rounded-lg border-2 border-ink bg-accent px-4 py-1.5 text-sm font-semibold text-on-accent disabled:opacity-40"
             >
               Add
             </button>
@@ -221,7 +239,7 @@ export function CategoryManager({ categories, onClose }: CategoryManagerProps) {
                 type="button"
                 onClick={() => setNewColor(c)}
                 aria-label={`Color ${c}`}
-                className="size-6 rounded-full"
+                className="tap-ring size-6 rounded-full"
                 style={{
                   backgroundColor: c,
                   boxShadow:
@@ -234,6 +252,23 @@ export function CategoryManager({ categories, onClose }: CategoryManagerProps) {
           </div>
         </div>
       </div>
+
+      {pendingDelete && (
+        <ConfirmDialog
+          title={`Remove ${pendingDelete.cat.name}?`}
+          body={
+            pendingDelete.inUse > 0
+              ? `This category has ${pendingDelete.inUse} ${
+                  pendingDelete.inUse === 1 ? 'entry' : 'entries'
+                }. It will be archived (history kept) and hidden from the picker.`
+              : 'This category has no entries and will be permanently deleted.'
+          }
+          confirmLabel={pendingDelete.inUse > 0 ? 'Archive' : 'Delete'}
+          tone="danger"
+          onConfirm={confirmDelete}
+          onCancel={() => setPendingDelete(null)}
+        />
+      )}
     </Sheet>
   )
 }

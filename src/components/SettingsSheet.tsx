@@ -76,7 +76,7 @@ export function SettingsSheet({
               type="button"
               onClick={handleExport}
               disabled={busy}
-              className="brut-press rounded-xl border-[2.5px] border-ink bg-accent py-3 font-semibold text-white shadow-[3px_3px_0_var(--color-ink)] disabled:opacity-50"
+              className="brut-press tap-ring rounded-xl border-[2.5px] border-ink bg-accent py-3 font-semibold text-on-accent shadow-[3px_3px_0_var(--color-ink)] disabled:opacity-50"
             >
               Export backup
             </button>
@@ -84,7 +84,7 @@ export function SettingsSheet({
               type="button"
               onClick={() => fileRef.current?.click()}
               disabled={busy}
-              className="rounded-xl border-2 border-ink bg-surface py-3 font-medium text-ink disabled:opacity-50"
+              className="tap-ring rounded-xl border-2 border-ink bg-surface py-3 font-medium text-ink disabled:opacity-50"
             >
               Import backup
             </button>
@@ -144,7 +144,7 @@ function Row({ label, onClick }: { label: string; onClick: () => void }) {
     <button
       type="button"
       onClick={onClick}
-      className="flex w-full items-center justify-between rounded-xl border-2 border-ink bg-surface px-4 py-3 text-[15px] text-ink"
+      className="tap-ring flex w-full items-center justify-between rounded-xl border-2 border-ink bg-surface px-4 py-3 text-[15px] text-ink"
     >
       {label}
       <span className="text-muted">›</span>
@@ -178,7 +178,7 @@ function DriveSection() {
           type="button"
           onClick={drive.connect}
           disabled={working}
-          className="brut-press rounded-xl border-[2.5px] border-ink bg-accent px-4 py-3 font-semibold text-white shadow-[3px_3px_0_var(--color-ink)] disabled:opacity-50"
+          className="brut-press tap-ring rounded-xl border-[2.5px] border-ink bg-accent px-4 py-3 font-semibold text-on-accent shadow-[3px_3px_0_var(--color-ink)] disabled:opacity-50"
         >
           {working ? 'Connecting…' : 'Connect Google Drive'}
         </button>
@@ -206,7 +206,7 @@ function DriveSection() {
       <button
         type="button"
         onClick={drive.toggleAuto}
-        className="flex items-center justify-between rounded-xl border-2 border-ink bg-surface px-4 py-3 text-[15px] text-ink"
+        className="tap-ring flex items-center justify-between rounded-xl border-2 border-ink bg-surface px-4 py-3 text-[15px] text-ink"
         role="switch"
         aria-checked={drive.autoBackup}
       >
@@ -229,7 +229,7 @@ function DriveSection() {
           type="button"
           onClick={drive.backup}
           disabled={working}
-          className="brut-press flex-1 rounded-xl border-[2.5px] border-ink bg-accent py-3 font-semibold text-white shadow-[3px_3px_0_var(--color-ink)] disabled:opacity-50"
+          className="brut-press tap-ring flex-1 rounded-xl border-[2.5px] border-ink bg-accent py-3 font-semibold text-on-accent shadow-[3px_3px_0_var(--color-ink)] disabled:opacity-50"
         >
           {working ? 'Working…' : 'Back up now'}
         </button>
@@ -237,7 +237,7 @@ function DriveSection() {
           type="button"
           onClick={drive.restore}
           disabled={working}
-          className="flex-1 rounded-xl border-2 border-ink bg-surface py-3 font-medium text-ink disabled:opacity-50"
+          className="tap-ring flex-1 rounded-xl border-2 border-ink bg-surface py-3 font-medium text-ink disabled:opacity-50"
         >
           Restore
         </button>
@@ -246,7 +246,7 @@ function DriveSection() {
       <button
         type="button"
         onClick={drive.disconnect}
-        className="self-start text-sm font-medium text-danger"
+        className="tap-ring self-start rounded-lg px-1 text-sm font-medium text-danger"
       >
         Disconnect
       </button>
