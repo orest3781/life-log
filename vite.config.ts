@@ -10,7 +10,13 @@ export default defineConfig({
     react(),
     tailwindcss(),
     VitePWA({
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      filename: 'sw.ts',
       registerType: 'prompt',
+      injectManifest: {
+        globPatterns: ['**/*.{js,css,html,svg,png}'],
+      },
       includeAssets: ['favicon.svg', 'icon.svg', 'apple-touch-icon.png'],
       manifest: {
         name: 'Waystone',
