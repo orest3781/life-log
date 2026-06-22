@@ -6,6 +6,7 @@ import { useDueReminders } from '../hooks/useDueReminders'
 import { useUpcomingReminders } from '../hooks/useUpcomingReminders'
 import { useEntryThumbnails } from '../hooks/useEntryThumbnails'
 import { useCategoryStatus } from '../hooks/useCategoryStatus'
+import { useCategoryCounts } from '../hooks/useCategoryCounts'
 import { visibleCategories } from '../lib/categories'
 import { completeReminder, quickLog } from '../db/repo'
 import { useToast } from './Toast'
@@ -56,6 +57,7 @@ export function LedgerScreen() {
   const thumbnails = useEntryThumbnails()
   const templates = useTemplates()
   const categoryStatus = useCategoryStatus(now)
+  const categoryCounts = useCategoryCounts()
   const overdueCount = useMemo(
     () => [...categoryStatus.values()].filter((s) => s.overdue).length,
     [categoryStatus],
@@ -167,6 +169,8 @@ export function LedgerScreen() {
         onSortChange={setSort}
         olderThanDays={olderThanDays}
         onOlderThanChange={setOlderThanDays}
+        counts={categoryCounts.byCategory}
+        totalCount={categoryCounts.total}
       />
 
       <OverviewCard
