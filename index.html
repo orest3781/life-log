@@ -8,12 +8,20 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover"
     />
-    <meta name="theme-color" content="#3f7d6e" />
+    <meta name="theme-color" content="#e7e0d1" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="Waystone" />
     <title>Waystone — a five-second logbook for your life</title>
+    <script>
+      // Apply the saved theme before first paint to avoid a flash of the
+      // default palette. Bone & Teal is the default (no attribute).
+      try {
+        var t = localStorage.getItem('waystone-theme')
+        if (t && t !== 'bone') document.documentElement.setAttribute('data-theme', t)
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

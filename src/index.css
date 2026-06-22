@@ -49,6 +49,164 @@
   }
 }
 
+/* ===== Themes (selectable via data-theme; each auto light/dark) =====
+   Bone & Teal is the default (above). Each theme uses :root[data-theme] so it
+   outranks the base :root tokens regardless of source order; every pairing is
+   WCAG-AA verified in both light and dark. */
+:root[data-theme='slate'] {
+  --color-paper: #e3e6ea;
+  --color-backdrop: #d3d8df;
+  --color-surface: #f6f8fb;
+  --color-surface-2: #e7ebf1;
+  --color-surface-3: #d9dee6;
+  --color-ink: #1f242c;
+  --color-muted: #545b66;
+  --color-faint: #69727f;
+  --color-line: #c2c8d2;
+  --color-accent: #8a5a17;
+  --color-accent-strong: #6b4410;
+  --color-accent-soft: #f0e3c9;
+  --color-on-accent: #ffffff;
+  --color-danger: #a8412c;
+  --color-danger-soft: #f0d9d2;
+  --color-on-danger: #ffffff;
+}
+
+:root[data-theme='coral'] {
+  --color-paper: #f0e8e1;
+  --color-backdrop: #e2d4c7;
+  --color-surface: #fcf6f0;
+  --color-surface-2: #f0e5dc;
+  --color-surface-3: #e6d9cd;
+  --color-ink: #2a2320;
+  --color-muted: #6a5c52;
+  --color-faint: #7d6e5d;
+  --color-line: #dac9ba;
+  --color-accent: #a8432e;
+  --color-accent-strong: #83321f;
+  --color-accent-soft: #f8ddd2;
+  --color-on-accent: #ffffff;
+  --color-danger: #9e2b4e;
+  --color-danger-soft: #f3d4dd;
+  --color-on-danger: #ffffff;
+}
+
+:root[data-theme='indigo'] {
+  --color-paper: #e3e2ec;
+  --color-backdrop: #d2d1df;
+  --color-surface: #f6f5fb;
+  --color-surface-2: #e8e7f1;
+  --color-surface-3: #d9d8e6;
+  --color-ink: #20212e;
+  --color-muted: #535470;
+  --color-faint: #6b6c82;
+  --color-line: #c5c4d6;
+  --color-accent: #7a6212;
+  --color-accent-strong: #5c4a0e;
+  --color-accent-soft: #efe6c6;
+  --color-on-accent: #ffffff;
+  --color-danger: #a8412c;
+  --color-danger-soft: #f0d9d2;
+  --color-on-danger: #ffffff;
+}
+
+:root[data-theme='mono'] {
+  --color-paper: #e8e8e6;
+  --color-backdrop: #d8d8d4;
+  --color-surface: #fcfcfb;
+  --color-surface-2: #ececea;
+  --color-surface-3: #dededb;
+  --color-ink: #161614;
+  --color-muted: #4a4a47;
+  --color-faint: #6f6f6b;
+  --color-line: #c4c4c0;
+  --color-accent: #161614;
+  --color-accent-strong: #000000;
+  --color-accent-soft: #dddddb;
+  --color-on-accent: #ffffff;
+  --color-danger: #ad2c1b;
+  --color-danger-soft: #f3dad5;
+  --color-on-danger: #ffffff;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-theme='slate'] {
+    --color-paper: #14171c;
+    --color-backdrop: #0e1014;
+    --color-surface: #1f242b;
+    --color-surface-2: #2b313a;
+    --color-surface-3: #363d48;
+    --color-ink: #e7eaf0;
+    --color-muted: #b6bdc9;
+    --color-faint: #949dab;
+    --color-line: #3a4150;
+    --color-accent: #e0a73c;
+    --color-accent-strong: #f2bf63;
+    --color-accent-soft: #36301d;
+    --color-on-accent: #1f242c;
+    --color-danger: #e08a70;
+    --color-danger-soft: #3a2620;
+    --color-on-danger: #1f242c;
+  }
+
+  :root[data-theme='coral'] {
+    --color-paper: #1a1512;
+    --color-backdrop: #120e0b;
+    --color-surface: #261d18;
+    --color-surface-2: #322720;
+    --color-surface-3: #3d3129;
+    --color-ink: #efe5dc;
+    --color-muted: #c6b8a9;
+    --color-faint: #9d8e80;
+    --color-line: #423429;
+    --color-accent: #ef9176;
+    --color-accent-strong: #f4ac97;
+    --color-accent-soft: #3a241d;
+    --color-on-accent: #2a2320;
+    --color-danger: #ec7a98;
+    --color-danger-soft: #3a2028;
+    --color-on-danger: #2a2320;
+  }
+
+  :root[data-theme='indigo'] {
+    --color-paper: #15151f;
+    --color-backdrop: #0f0f17;
+    --color-surface: #20212e;
+    --color-surface-2: #2c2c3c;
+    --color-surface-3: #373749;
+    --color-ink: #e7e6f0;
+    --color-muted: #b9b9cb;
+    --color-faint: #9090a4;
+    --color-line: #3b3b50;
+    --color-accent: #d8b24a;
+    --color-accent-strong: #ecc869;
+    --color-accent-soft: #332d18;
+    --color-on-accent: #20212e;
+    --color-danger: #e08a70;
+    --color-danger-soft: #3a2620;
+    --color-on-danger: #20212e;
+  }
+
+  :root[data-theme='mono'] {
+    --color-paper: #121211;
+    --color-backdrop: #0b0b0a;
+    --color-surface: #1d1d1b;
+    --color-surface-2: #2a2a27;
+    --color-surface-3: #353532;
+    --color-ink: #f0f0ec;
+    --color-muted: #bcbcb6;
+    --color-faint: #8a8a84;
+    --color-line: #3a3a36;
+    --color-accent: #f0f0ec;
+    --color-accent-strong: #ffffff;
+    --color-accent-soft: #2a2a27;
+    --color-on-accent: #161614;
+    --color-danger: #ec7a68;
+    --color-danger-soft: #382019;
+    --color-on-danger: #161614;
+  }
+}
+
 html,
 body,
 #root {

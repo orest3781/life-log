@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import { formatDistanceToNow } from 'date-fns'
 import { Sheet } from './Sheet'
+import { ThemePicker } from './ThemePicker'
 import { exportAll, downloadBackup, importAll } from '../lib/backup'
 import { useDriveSync } from '../hooks/useDriveSync'
 
@@ -54,6 +55,10 @@ export function SettingsSheet({
   return (
     <Sheet title="Settings" onClose={onClose}>
       <div className="flex flex-col gap-6 py-2">
+        <Section title="Appearance">
+          <ThemePicker />
+        </Section>
+
         <Section title="Categories">
           <Row label="Manage categories" onClick={onOpenCategories} />
         </Section>
