@@ -9,7 +9,7 @@ import {
   hasLiveToken,
   isConfigured,
 } from './googleAuth'
-import { downloadBackup, uploadBackup } from './drive'
+import { downloadBackup, ensureBackupFolder, findBackup, uploadBackup } from './drive'
 
 const STATE_KEY = 'lifelog-drive'
 
@@ -17,12 +17,16 @@ export interface DriveState {
   connected: boolean
   autoBackup: boolean
   lastBackupAt: number | null
+  /** A Drive backup found on connect, awaiting the user's restore/keep choice.
+   *  While set, auto-backup is paused so it can't clobber the backup. */
+  pendingRestoreAt: number | null
 }
 
 const DEFAULT_STATE: DriveState = {
   connected: false,
   autoBackup: true,
   lastBackupAt: null,
+  pendingRestoreAt: null,
 }
 
 export function getDriveState(): DriveState {
@@ -61,12 +65,42 @@ export function friendlyDriveError(message: string): string {
   return 'Something went wrong with Google Drive. Please try again.'
 }
 
-// Begin the OAuth flow (shows Google's UI), then mark as connected and run a
-// first backup so Drive immediately reflects the device.
+// Begin the OAuth flow (shows Google's UI), then mark as connected. Crucially,
+// don't blindly overwrite Drive: if a backup already exists (e.g. connecting a
+// second device), flag it so the user can choose to restore it. Only a brand
+// new, empty Drive is seeded from this device.
 export async function connectDrive(): Promise<DriveState> {
   await getAccessToken() // user gesture → consent UI
   patchState({ connected: true })
+  const existing = await peekBackup()
+  if (existing) {
+    return patchState({ pendingRestoreAt: existing.modifiedTime ?? Date.now() })
+  }
   return backupNow()
+}
+
+// Whether a backup already exists in Drive, with its last-modified time.
+export async function peekBackup(): Promise<{ modifiedTime: number | null } | null> {
+  const token = await getAccessToken()
+  const folderId = await ensureBackupFolder(token)
+  const file = await findBackup(token, folderId)
+  if (!file) return null
+  return {
+    modifiedTime: file.modifiedTime ? new Date(file.modifiedTime).getTime() : null,
+  }
+}
+
+// Accept the offered Drive backup: pull it in and clear the pending prompt.
+export async function confirmRestore(): Promise<boolean> {
+  const found = await restoreFromDrive()
+  patchState({ pendingRestoreAt: null })
+  return found
+}
+
+// Keep this device's data instead: overwrite the Drive backup, clear the prompt.
+export async function keepLocalOverwrite(): Promise<DriveState> {
+  await backupNow()
+  return patchState({ pendingRestoreAt: null })
 }
 
 export function disconnectDrive(): DriveState {

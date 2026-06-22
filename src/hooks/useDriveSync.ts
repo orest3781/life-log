@@ -3,12 +3,14 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../db/db'
 import {
   backupNow,
+  confirmRestore as runConfirmRestore,
   connectDrive,
   disconnectDrive,
   friendlyDriveError,
   getDriveState,
   hasLiveToken,
   isConfigured,
+  keepLocalOverwrite as runKeepLocal,
   restoreFromDrive,
   setAutoBackup,
   type DriveState,
@@ -23,12 +25,16 @@ export interface UseDriveSync {
   connected: boolean
   autoBackup: boolean
   lastBackupAt: number | null
+  /** A Drive backup found on connect, awaiting a restore/keep choice (or null). */
+  pendingRestoreAt: number | null
   status: SyncStatus
   message: string | null
   connect: () => Promise<void>
   disconnect: () => void
   backup: () => Promise<void>
   restore: () => Promise<void>
+  confirmRestore: () => Promise<void>
+  keepLocal: () => Promise<void>
   toggleAuto: () => void
 }
 
@@ -75,6 +81,7 @@ export function useDriveSync(): UseDriveSync {
     lastSeenFp.current = fingerprint
     if (first || !changed) return
     if (!configured || !state.connected || !state.autoBackup) return
+    if (state.pendingRestoreAt != null) return // wait for the restore/keep choice
 
     if (!hasLiveToken()) {
       setStatus('reconnect')
@@ -120,6 +127,33 @@ export function useDriveSync(): UseDriveSync {
     }
   }, [])
 
+  const confirmRestore = useCallback(async () => {
+    setStatus('working')
+    setMessage(null)
+    try {
+      const found = await runConfirmRestore()
+      setState(getDriveState())
+      setStatus('idle')
+      setMessage(found ? 'Restored from Drive.' : 'No backup found in Drive yet.')
+    } catch (err) {
+      setStatus('error')
+      setMessage(friendlyDriveError(err instanceof Error ? err.message : ''))
+    }
+  }, [])
+
+  const keepLocal = useCallback(async () => {
+    setStatus('working')
+    setMessage(null)
+    try {
+      setState(await runKeepLocal())
+      setStatus('idle')
+      setMessage('This device’s data is now the backup.')
+    } catch (err) {
+      setStatus('error')
+      setMessage(friendlyDriveError(err instanceof Error ? err.message : ''))
+    }
+  }, [])
+
   const toggleAuto = useCallback(() => {
     setState(setAutoBackup(!getDriveState().autoBackup))
   }, [])
@@ -129,12 +163,15 @@ export function useDriveSync(): UseDriveSync {
     connected: state.connected,
     autoBackup: state.autoBackup,
     lastBackupAt: state.lastBackupAt,
+    pendingRestoreAt: state.pendingRestoreAt,
     status,
     message,
     connect,
     disconnect,
     backup: runBackup,
     restore,
+    confirmRestore,
+    keepLocal,
     toggleAuto,
   }
 }

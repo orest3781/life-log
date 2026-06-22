@@ -201,6 +201,37 @@ function DriveSection() {
 
   return (
     <div className="flex flex-col gap-3">
+      {drive.pendingRestoreAt != null && (
+        <div className="brut-sm flex flex-col gap-2 bg-accent-soft p-3">
+          <div className="text-[15px] font-semibold text-ink">
+            Backup found in Drive
+          </div>
+          <p className="text-sm leading-relaxed text-muted">
+            Updated{' '}
+            {formatDistanceToNow(drive.pendingRestoreAt, { addSuffix: true })}.
+            Restore it to this device, or keep this device’s data and replace the
+            backup?
+          </p>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={drive.confirmRestore}
+              disabled={working}
+              className="brut-press tap-ring flex-1 rounded-xl border-[2.5px] border-ink bg-accent py-2.5 font-semibold text-on-accent shadow-[3px_3px_0_var(--color-ink)] disabled:opacity-60"
+            >
+              Restore
+            </button>
+            <button
+              type="button"
+              onClick={drive.keepLocal}
+              disabled={working}
+              className="tap-ring flex-1 rounded-xl border-2 border-ink bg-surface py-2.5 font-medium text-ink disabled:opacity-60"
+            >
+              Keep this device
+            </button>
+          </div>
+        </div>
+      )}
       <div className="brut-sm flex items-center justify-between bg-surface px-4 py-3">
         <div>
           <div className="text-[15px] font-medium text-ink">Connected</div>
