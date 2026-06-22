@@ -3,11 +3,13 @@ import { useNow } from '../hooks/useNow'
 import { useCategories } from '../hooks/useCategories'
 import { useEntries, type EntrySort } from '../hooks/useEntries'
 import { useDueReminders } from '../hooks/useDueReminders'
+import { useUpcomingReminders } from '../hooks/useUpcomingReminders'
 import { useEntryThumbnails } from '../hooks/useEntryThumbnails'
 import { useCategoryStatus } from '../hooks/useCategoryStatus'
 import { visibleCategories } from '../lib/categories'
-import { completeReminder } from '../db/repo'
-import { DueStrip } from './DueStrip'
+import { completeReminder, quickLog } from '../db/repo'
+import { useToast } from './Toast'
+import { OverviewCard, type OverdueItem } from './OverviewCard'
 import { EntryRow } from './EntryRow'
 import { SearchBar } from './SearchBar'
 import { LogSheet } from './LogSheet'
@@ -39,6 +41,7 @@ type View =
 
 export function LedgerScreen() {
   const now = useNow()
+  const toast = useToast()
   const categories = useCategories()
   const [search, setSearch] = useState('')
   const [searchOpen, setSearchOpen] = useState(false)
@@ -49,6 +52,7 @@ export function LedgerScreen() {
 
   const entries = useEntries({ search, categoryId, sort, olderThanDays })
   const due = useDueReminders(now)
+  const upcoming = useUpcomingReminders(now)
   const thumbnails = useEntryThumbnails()
   const templates = useTemplates()
   const categoryStatus = useCategoryStatus(now)
@@ -56,6 +60,31 @@ export function LedgerScreen() {
     () => [...categoryStatus.values()].filter((s) => s.overdue).length,
     [categoryStatus],
   )
+
+  // Cadence-overdue categories, surfaced in the overview at the top of the
+  // ledger (no longer hidden behind the clock).
+  const overdueItems = useMemo<OverdueItem[]>(() => {
+    if (!categories) return []
+    return visibleCategories(categories)
+      .map((c) => {
+        const s = categoryStatus.get(c.id)
+        return s?.overdue && s.lastOccurredAt !== null
+          ? {
+              category: c,
+              lastOccurredAt: s.lastOccurredAt,
+              lastTitle: s.lastTitle,
+            }
+          : null
+      })
+      .filter((x): x is OverdueItem => x !== null)
+  }, [categories, categoryStatus])
+
+  async function handleRelog(item: OverdueItem) {
+    if (!item.lastTitle) return
+    await quickLog(item.lastTitle, item.category.id)
+    haptic.tap()
+    toast.show(`Logged “${item.lastTitle}” — now`)
+  }
 
   const categoriesById = useMemo(() => {
     const map = new Map<string, Category>()
@@ -140,14 +169,17 @@ export function LedgerScreen() {
         onOlderThanChange={setOlderThanDays}
       />
 
-      {due && (
-        <DueStrip
-          entries={due}
-          categoriesById={categoriesById}
-          onOpen={(entry) => setView({ kind: 'detail', entry })}
-          onMarkDone={(entry) => completeReminder(entry)}
-        />
-      )}
+      <OverviewCard
+        overdue={overdueItems}
+        due={due ?? []}
+        upcoming={upcoming ?? []}
+        categoriesById={categoriesById}
+        now={now}
+        onOpenEntry={(entry) => setView({ kind: 'detail', entry })}
+        onPickCategory={(id) => setCategoryId(id)}
+        onRelog={handleRelog}
+        onMarkDone={(entry) => completeReminder(entry)}
+      />
 
       {templates && (
         <QuickLogBar templates={templates} categoriesById={categoriesById} />
