@@ -39,6 +39,15 @@ export default defineConfig({
             purpose: 'maskable',
           },
         ],
+        shortcuts: [
+          {
+            name: 'New entry',
+            short_name: 'New',
+            description: 'Log something that just happened',
+            url: '/?action=new',
+            icons: [{ src: 'pwa-192.png', sizes: '192x192', type: 'image/png' }],
+          },
+        ],
       },
     }),
   ],

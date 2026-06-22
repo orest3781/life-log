@@ -13,6 +13,25 @@ import { Splash } from './components/Splash'
 
 export default function App() {
   const [ready, setReady] = useState(false)
+  // "Open to log": the manifest's New-entry shortcut (and any /?action=new
+  // deep link) launches straight into the new-entry sheet.
+  const [openCreate] = useState(() => {
+    try {
+      return new URLSearchParams(window.location.search).get('action') === 'new'
+    } catch {
+      return false
+    }
+  })
+
+  useEffect(() => {
+    if (openCreate) {
+      try {
+        window.history.replaceState({}, '', window.location.pathname)
+      } catch {
+        /* ignore */
+      }
+    }
+  }, [openCreate])
 
   useEffect(() => {
     // Re-apply the saved theme now that styles are loaded — the inline script
@@ -35,5 +54,5 @@ export default function App() {
   }, [])
 
   if (!ready) return <Splash />
-  return <LedgerScreen />
+  return <LedgerScreen openCreate={openCreate} />
 }

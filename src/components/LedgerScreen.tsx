@@ -40,7 +40,7 @@ type View =
   | { kind: 'templates' }
   | { kind: 'categories' }
 
-export function LedgerScreen() {
+export function LedgerScreen({ openCreate = false }: { openCreate?: boolean }) {
   const now = useNow()
   const toast = useToast()
   const categories = useCategories()
@@ -49,7 +49,9 @@ export function LedgerScreen() {
   const [categoryId, setCategoryId] = useState<string | null>(null)
   const [sort, setSort] = useState<EntrySort>('newest')
   const [olderThanDays, setOlderThanDays] = useState<number | null>(null)
-  const [view, setView] = useState<View>({ kind: 'none' })
+  const [view, setView] = useState<View>(
+    openCreate ? { kind: 'create' } : { kind: 'none' },
+  )
 
   const entries = useEntries({ search, categoryId, sort, olderThanDays })
   const due = useDueReminders(now)

@@ -58,7 +58,9 @@ export function LogSheet({
   const toast = useToast()
   const [title, setTitle] = useState(entry?.title ?? '')
   const [categoryId, setCategoryId] = useState<string | null>(
-    entry?.categoryId ?? defaultCategoryId ?? null,
+    // Smart default: pre-select the most-likely category (recent/most-used) so
+    // a new entry is just "type a title → Save". Still one tap to change.
+    entry?.categoryId ?? defaultCategoryId ?? sortForPicker(categories)[0]?.id ?? null,
   )
   const [occurredAt, setOccurredAt] = useState<number>(
     entry?.occurredAt ?? Date.now(),
